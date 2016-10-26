@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 26-Oct-2016 13:40:11
+% Last Modified by GUIDE v2.5 26-Oct-2016 16:51:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -112,7 +112,7 @@ kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
-    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz.Ef;
+    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz_cut_data.Ef;
 end;
 
 %write 3D data to UserData
@@ -166,29 +166,33 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+% --- Executes on button press in pushbutton_kz_cut.
+function pushbutton_kz_cut_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_kz_cut (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 figure_plot=str2num(get(handles.edit_plot_figure,'String'));
 kz_cut_data=get(handles.pushbutton_kz_cut,'UserData');
-kz_cut_data=kz_cut_data{1};
+%kz_cut_data=kz_cut_data{1};
 
 %extract selected bands
-band_list_plotting=str2num(get(handles.listbox_select_bands,'String'));
 band_list_plotting=band_list_plotting(get(handles.listbox_select_bands,'Value'));
+band_list_plotting=str2num(get(handles.listbox_select_bands,'String'));
 
 %extract contour energies
-contour_energies=sort(str2num(get(
+contour_energies=sort(str2num(get(handles.edit_plot_energies, 'String')));
+if length(contour_energies)==1
+    contour_energies=[contour_energies contour_energies];
+end;
 
 %plot contours
 
 figure(figure_plot)
+hold on
 for ii=1:length(band_list_plotting)
-    kz_cut_data
-    contour
+    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii})
+end;
 
 
 
@@ -258,7 +262,7 @@ raw_data=get(handles.pushbutton_load,'UserData');
 
 
 % --- Executes during object creation, after setting all properties.
-function pushbutton3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+function pushbutton_kz_cut_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton_kz_cut (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called

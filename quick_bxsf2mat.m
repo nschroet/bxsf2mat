@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 26-Oct-2016 13:40:11
+% Last Modified by GUIDE v2.5 26-Oct-2016 16:59:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -166,19 +166,20 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+% --- Executes on button press in pushbutton_contour_plotting.
+function pushbutton_contour_plotting_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_contour_plotting (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 figure_plot=str2num(get(handles.edit_plot_figure,'String'));
-kz_cut_data=get(handles.pushbutton_kz_cut,'UserData');
+kz_cut_data=get(handles.pushbutton_cut_kz,'UserData');
 kz_cut_data=kz_cut_data{1};
 
 %extract selected bands
-band_list_plotting=str2num(get(handles.listbox_select_bands,'String'));
-band_list_plotting=band_list_plotting(get(handles.listbox_select_bands,'Value'));
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=get(handles.listbox_select_bands,'String');
+band_list_plotting=str2num(band_list_plotting{band_list_plotting_index});
 
 %extract contour energies
 contour_energies=sort(str2num(get(handles.edit_plot_energies, 'String')));
@@ -190,8 +191,8 @@ end;
 
 figure(figure_plot)
 hold on
-for ii=1:length(band_list_plotting)
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii})
+for ii=band_list_plotting
+    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii},contour_energies)
 end;
 
 
@@ -262,7 +263,7 @@ raw_data=get(handles.pushbutton_load,'UserData');
 
 
 % --- Executes during object creation, after setting all properties.
-function pushbutton3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+function pushbutton_contour_plotting_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton_contour_plotting (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
