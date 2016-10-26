@@ -178,8 +178,10 @@ kz_cut_data=kz_cut_data{1};
 
 %extract selected bands
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
-band_list_plotting=get(handles.listbox_select_bands,'String');
-band_list_plotting=str2num(band_list_plotting{band_list_plotting_index});
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+
 
 %extract contour energies
 contour_energies=sort(str2num(get(handles.edit_plot_energies, 'String')));
@@ -192,7 +194,7 @@ end;
 figure(figure_plot)
 hold on
 for ii=band_list_plotting
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii},contour_energies)
+    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii},contour_energies,'ShowText','on')
 end;
 
 
@@ -259,6 +261,16 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 raw_data=get(handles.pushbutton_load,'UserData');
+raw_data=raw_data{1}
+raw_data.kx=[-1.*fliplr(raw_data.kx(2:end)) raw_data.kx];
+raw_data.ky=[-1.*fliplr(raw_data.ky(2:end)) raw_data.ky];
+for ii=1:raw_data.N_band;
+    raw_data.E{ii}=cat(2,fliplr(raw_data.E{ii}),raw_data.E{ii}(:,2:end,:));
+    raw_data.E{ii}=cat(1,flipud(raw_data.E{ii}),raw_data.E{ii}(2:end,:,:));    
+end;
+set(handles.pushbutton_load,'UserData',{raw_data});
+
+a=5;
 % do symmetrization
 
 
