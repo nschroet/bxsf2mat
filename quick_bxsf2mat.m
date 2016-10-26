@@ -104,8 +104,8 @@ function pushbutton_cut_kz_Callback(hObject, eventdata, handles)
 % load 4D data
 raw_data=get(handles.pushbutton_load,'UserData');
 raw_data=raw_data{1};
-
-[~,kz_index]=min(raw_data.kz-num2str(get(handles.edit_kz_value,'String')));
+kz_value=str2num(get(handles.edit_kz_value,'String'));
+[~,kz_index]=min(abs(raw_data.kz-kz_value));
 kz_cut_data=raw_data;
 kz_cut_data.kz=kz_cut_data.kz(kz_index);
 
@@ -194,7 +194,8 @@ end;
 figure(figure_plot)
 hold on
 for ii=1:length(band_list_plotting)
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},contour_energies,'ShowText','on')
+    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        contour_energies,'ShowText','on','Color','red')
 end;
 
 
