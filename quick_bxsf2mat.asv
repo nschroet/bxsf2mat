@@ -112,7 +112,7 @@ kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
-    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz_cut_data.Ef;
+    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz.Ef;
 end;
 
 %write 3D data to UserData
@@ -181,18 +181,14 @@ band_list_plotting=str2num(get(handles.listbox_select_bands,'String'));
 band_list_plotting=band_list_plotting(get(handles.listbox_select_bands,'Value'));
 
 %extract contour energies
-contour_energies=sort(str2num(get(handles.edit_plot_energies, 'String')));
-if length(contour_energies)==1
-    contour_energies=[contour_energies contour_energies];
-end;
+contour_energies=sort(str2num(get(
 
 %plot contours
 
 figure(figure_plot)
-hold on
 for ii=1:length(band_list_plotting)
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii})
-end;
+    kz_cut_data
+    contour
 
 
 
