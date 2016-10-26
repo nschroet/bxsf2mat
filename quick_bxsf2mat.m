@@ -112,6 +112,7 @@ kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
+    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz.Ef;
 end;
 
 %write 3D data to UserData
@@ -171,14 +172,20 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-figure_plot=str2num(get(handles.edit_plot_figure,'String'));
-kz_cut_data=get(handles.pushbutton_kz_cut,'UserData');
-kz_cut_data=kz_cut_data{1};
-band_list_plotting= 
+% figure_plot=str2num(get(handles.edit_plot_figure,'String'));
+% kz_cut_data=get(handles.pushbutton_kz_cut,'UserData');
+% kz_cut_data=kz_cut_data{1};
+% 
+% %extract selected bands
+% band_list_plotting=str2num(get(handles.listbox_select_bands,'String'));
+% band_list_plotting=band_list_plotting(get(handles.listbox_select_bands,'Value'));
+% 
+% 
+% figure(figure_plot)
+% for ii=1:length(band_list_plotting)
+%     kz_cut_data
+%     contour
 
-figure(figure_plot)
-for
-contour
 
 
 
