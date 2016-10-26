@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 26-Oct-2016 11:52:14
+% Last Modified by GUIDE v2.5 26-Oct-2016 13:40:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,15 +95,29 @@ end;
 
 
 
-% --- Executes on button press in pushbutton2_cut_kz.
-function pushbutton2_cut_kz_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2_cut_kz (see GCBO)
+% --- Executes on button press in pushbutton_cut_kz.
+function pushbutton_cut_kz_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_cut_kz (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% load 4D data
 raw_data=get(handles.pushbutton_load,'UserData');
-[~,kz_index]=min(raw_data.kz-num2str(get(handles.edit_kz_value,'String')))
+raw_data=raw_data{1};
 
+[~,kz_index]=min(raw_data.kz-num2str(get(handles.edit_kz_value,'String')));
+kz_cut_data=raw_data;
+kz_cut_data.kz=kz_cut_data.kz(kz_index);
 
+%cut 2D slice out of 3D energy data
+for ii=1:kz_cut_data.N_band
+    kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
+end;
+
+%write 3D data to UserData
+set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
+
+set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
 % --- Executes on selection change in listbox_select_bands.
 function listbox_select_bands_Callback(hObject, eventdata, handles)
@@ -156,6 +170,16 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+figure_plot=str2num(get(handles.edit_plot_figure,'String'));
+kz_cut_data=get(handles.pushbutton_kz_cut,'UserData');
+kz_cut_data=kz_cut_data{1};
+band_list_plotting= 
+
+figure(figure_plot)
+for
+contour
+
 
 
 
@@ -220,3 +244,10 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 raw_data=get(handles.pushbutton_load,'UserData');
 % do symmetrization
+
+
+% --- Executes during object creation, after setting all properties.
+function pushbutton3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
