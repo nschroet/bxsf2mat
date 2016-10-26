@@ -12,7 +12,7 @@ matrix_bxsf_vect=[bxsf_rawdata.v1' bxsf_rawdata.v2' bxsf_rawdata.v3'];
 trafo_matrix_cart_2_bxsf_vect_space=inv(matrix_bxsf_vect);
 
 % create cartesian meshgrid
-cartesian_length_vect=linspace(0,norm(bxsf_rawdata.v1),51);
+cartesian_length_vect=linspace(0,2,51); %here we use cube with side length 2
 [X,Y,Z] = meshgrid(cartesian_length_vect,...
     cartesian_length_vect,...
     cartesian_length_vect);
@@ -42,12 +42,12 @@ mat_data.band_numbers_crossing_Ef=band_numbers_crossing_Ef;
 % clean fields from Teng's data 
 mat_data=rmfield(mat_data,{'Nx','Ny','Nz','G0','v1','v2','v3','E_range'});
 
-% 
-% mat_data
 
-%[~,kz_index]=min(abs(cartesian_length_vect-kz));
-
-
+%generate normalized meshgrid for interpolation
+cartesian_length_vect=linspace(0,1,51);
+[X,Y,Z] = meshgrid(cartesian_length_vect,...
+    cartesian_length_vect,...
+    cartesian_length_vect);
 for ii=1:bxsf_rawdata.N_band
     %// interpolate the energies of the transformed cartesian coordinates
     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));

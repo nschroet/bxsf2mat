@@ -262,13 +262,21 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 raw_data=get(handles.pushbutton_load,'UserData');
 raw_data=raw_data{1}
-raw_data.kx=[-1.*fliplr(raw_data.kx(2:end)) raw_data.kx];
-raw_data.ky=[-1.*fliplr(raw_data.ky(2:end)) raw_data.ky];
-for ii=1:raw_data.N_band;
-    raw_data.E{ii}=cat(2,fliplr(raw_data.E{ii}),raw_data.E{ii}(:,2:end,:));
-    raw_data.E{ii}=cat(1,flipud(raw_data.E{ii}),raw_data.E{ii}(2:end,:,:));    
-end;
-set(handles.pushbutton_load,'UserData',{raw_data});
+if isfield(raw_data, 'already_symmetrized')
+    raw_data.kx=[-1.*fliplr(raw_data.kx(2:end)) raw_data.kx];
+    raw_data.ky=[-1.*fliplr(raw_data.ky(2:end)) raw_data.ky];
+    for ii=1:raw_data.N_band;
+        raw_data.E{ii}=cat(2,fliplr(raw_data.E{ii}),raw_data.E{ii}(:,2:end,:));
+        raw_data.E{ii}=cat(1,flipud(raw_data.E{ii}),raw_data.E{ii}(2:end,:,:));    
+    end;
+end
+
+    %set switch that shows that the data was already symmetrized
+    raw_data.already_symmetrized=1;
+
+    set(handles.pushbutton_load,'UserData',{raw_data});
+
+set(handles.pushbutton_symmetrize,'BackgroundColor','green'); 
 
 a=5;
 % do symmetrization
