@@ -193,8 +193,8 @@ end;
 
 figure(figure_plot)
 hold on
-for ii=band_list_plotting
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{ii},contour_energies,'ShowText','on')
+for ii=1:length(band_list_plotting)
+    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},contour_energies,'ShowText','on')
 end;
 
 
