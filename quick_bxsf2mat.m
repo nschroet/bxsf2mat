@@ -286,6 +286,29 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+figure_plot=str2num(get(handles.edit_fig_isosurface,'String'));
+isosurface_energy=str2num(get(handles.edit_energy_isosurface, 'String'));
+
+isosurface_data=get(handles.pushbutton_load,'UserData');
+isosurface_data=isosurface_data{1};
+
+%extract selected bands
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+[X,Y,Z]=meshgrid(isosurface_data.kx, ...
+    isosurface_data.ky, ...
+    isosurface_data.kz);
+figure(figure_plot)
+hold on
+color_list=['yellow' 'magenta'	'cyan' 'red' 'green' 'blue'];
+for ii=1:length(band_list_plotting)
+    fv = isosurface(X,Y,Z,isosurface_data.E{ii},isosurface_energy)
+    patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii))
+end;
+
+
+%extract contour energies
 
 
 function edit_energy_isosurface_Callback(hObject, eventdata, handles)
