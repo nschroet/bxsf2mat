@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 26-Oct-2016 16:59:29
+% Last Modified by GUIDE v2.5 27-Oct-2016 15:03:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -112,7 +112,7 @@ kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
-    kz_cut_data.E{ii}=kz_cut_data.E{ii}-kz_cut_data.Ef;
+    
 end;
 
 %write 3D data to UserData
@@ -263,17 +263,7 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 raw_data=get(handles.pushbutton_load,'UserData');
 raw_data=raw_data{1}
-if isfield(raw_data, 'already_symmetrized')
-    raw_data.kx=[-1.*fliplr(raw_data.kx(2:end)) raw_data.kx];
-    raw_data.ky=[-1.*fliplr(raw_data.ky(2:end)) raw_data.ky];
-    for ii=1:raw_data.N_band;
-        raw_data.E{ii}=cat(2,fliplr(raw_data.E{ii}),raw_data.E{ii}(:,2:end,:));
-        raw_data.E{ii}=cat(1,flipud(raw_data.E{ii}),raw_data.E{ii}(2:end,:,:));    
-    end;
-end
-
-    %set switch that shows that the data was already symmetrized
-    raw_data.already_symmetrized=1;
+[ raw_data ] = symmetrize_mat( raw_data );
 
     set(handles.pushbutton_load,'UserData',{raw_data});
 
@@ -288,3 +278,56 @@ function pushbutton_contour_plotting_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pushbutton_contour_plotting (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit_energy_isosurface_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_energy_isosurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_energy_isosurface as text
+%        str2double(get(hObject,'String')) returns contents of edit_energy_isosurface as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_energy_isosurface_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_energy_isosurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_fig_isosurface_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_fig_isosurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_fig_isosurface as text
+%        str2double(get(hObject,'String')) returns contents of edit_fig_isosurface as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_fig_isosurface_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_fig_isosurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

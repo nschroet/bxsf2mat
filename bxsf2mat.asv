@@ -7,20 +7,20 @@ function [mat_data]=bxsf2mat(bxsf_rawdata)
 % build transformation matrix from bxsf vectors to cartesian vectors 
 % [1 0 0] [0 1 0] [0 0 1]
 
+
 matrix_bxsf_vect=[bxsf_rawdata.v1' bxsf_rawdata.v2' bxsf_rawdata.v3'];
 
 %invert the matrix to get trafo from cartesian to bxfs vectos
 trafo_matrix_cart_2_bxsf_vect_space=inv(matrix_bxsf_vect);
 
 % create cartesian meshgrid
-interpolation_points=100;
-cartesian_length_vect=linspace(0,3,interpolation_points); %here we use cube with side length 2
-[X_1,Y_1,Z_1] = meshgrid(cartesian_length_vect,...
+cartesian_length_vect=linspace(0,2,51); %here we use cube with side length 2
+[X,Y,Z] = meshgrid(cartesian_length_vect,...
     cartesian_length_vect,...
     cartesian_length_vect);
 
 % Create an N x 3 matrix of coordinates
-points_cartesian = [X_1(:), Y_1(:), Z_1(:)];
+points_cartesian = [X(:), Y(:), Z(:)];
 
 % Transform the coordinates
 points_transformed = points_cartesian * trafo_matrix_cart_2_bxsf_vect_space;
@@ -53,8 +53,7 @@ cartesian_length_vect=linspace(0,1,bxsf_rawdata.Nx);
 for ii=1:bxsf_rawdata.N_band
     %// interpolate the energies of the transformed cartesian coordinates
     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
-    mat_data.E{ii}=reshape(data_cartesian,[interpolation_points,interpolation_points,interpolation_points]);
-    mat_data.E{ii}=mat_data.E{ii}-mat_data.Ef;
+    mat_data.E{ii}=reshape(data_cartesian,[51,51,51]);
 end;
-a=5;
+
 end
