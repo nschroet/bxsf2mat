@@ -301,9 +301,9 @@ band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
     isosurface_data.kz);
 figure(figure_plot)
 hold on
-color_list=['yellow' 'magenta'	'cyan' 'red' 'green' 'blue'];
+color_list=['y','m','cyan', 'red', 'green', 'blue'];
 for ii=1:length(band_list_plotting)
-    fv = isosurface(X,Y,Z,isosurface_data.E{ii},isosurface_energy)
+    fv = isosurface(X,Y,Z,isosurface_data.E{band_list_plotting(ii)},isosurface_energy);
     patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii))
 end;
 
