@@ -1,4 +1,4 @@
-function [mat_data]=bxsf2mat(bxsf_rawdata)
+function [mat_data]=bxsf2mat(bxsf_rawdata,no_interpolation_points,interpolation_length)
 %bxsf2mat interpolates bxsf data (which is generally in a non-orthoginal)
 %into orthogonal cartesian coordinates in inverse Angstroms
 %   bxsf_rawdata is in the format specified by Teng's loader, as given by
@@ -13,8 +13,7 @@ matrix_bxsf_vect=[bxsf_rawdata.v1' bxsf_rawdata.v2' bxsf_rawdata.v3'];
 trafo_matrix_cart_2_bxsf_vect_space=inv(matrix_bxsf_vect);
 
 % create cartesian meshgrid
-interpolation_points=100;
-cartesian_length_vect=linspace(0,3,interpolation_points); %here we use cube with side length 2
+cartesian_length_vect=linspace(0,interpolation_length,no_interpolation_points); %here we use cube with side length 2
 [X_1,Y_1,Z_1] = meshgrid(cartesian_length_vect,...
     cartesian_length_vect,...
     cartesian_length_vect);
@@ -53,7 +52,7 @@ cartesian_length_vect=linspace(0,1,bxsf_rawdata.Nx);
 for ii=1:bxsf_rawdata.N_band
     %// interpolate the energies of the transformed cartesian coordinates
     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
-    mat_data.E{ii}=reshape(data_cartesian,[interpolation_points,interpolation_points,interpolation_points]);
+    mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
     mat_data.E{ii}=mat_data.E{ii}-mat_data.Ef;
 end;
 a=5;

@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 15:03:56
+% Last Modified by GUIDE v2.5 27-Oct-2016 20:32:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,8 +78,16 @@ function pushbutton_load_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_load (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-rawdata_converted=bxsf2mat(load_bxsf);
-set(handles.pushbutton_load,'UserData',{rawdata_converted});
+interp_points=str2num(get(handles.edit_no_interp_points,'String'));
+length_interp_vect=str2num(get(handles.edit_length_interp_vect,'String'));
+
+% load and convert bxsf
+rawdata_converted=bxsf2mat(load_bxsf,interp_points,length_interp_vect);
+
+% write loaded data to workspace for other functions to access
+%set(handles.pushbutton_load,'UserData',{rawdata_converted});
+assignin('base', 'bxsf_data', rawdata_converted);
+
 set(handles.pushbutton_load,'BackgroundColor','green'); 
 
 % list bands in listbox
@@ -102,8 +110,9 @@ function pushbutton_cut_kz_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % load 4D data
-raw_data=get(handles.pushbutton_load,'UserData');
-raw_data=raw_data{1};
+%raw_data=get(handles.pushbutton_load,'UserData');
+raw_data=evalin('base','bxsf_data');
+%raw_data=raw_data{1};
 kz_value=str2num(get(handles.edit_kz_value,'String'));
 [~,kz_index]=min(abs(raw_data.kz-kz_value));
 kz_cut_data=raw_data;
@@ -112,11 +121,12 @@ kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
-    
+ 
 end;
 
 %write 3D data to UserData
-set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
+%set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
+assignin('base', 'bxsf_kzcut_data', kz_cut_data);
 
 set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
@@ -173,8 +183,12 @@ function pushbutton_contour_plotting_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 figure_plot=str2num(get(handles.edit_plot_figure,'String'));
-kz_cut_data=get(handles.pushbutton_cut_kz,'UserData');
-kz_cut_data=kz_cut_data{1};
+
+%load kz cut data from workspace
+kz_cut_data=evalin('base','bxsf_kzcut_data');
+% kz_cut_data=get(handles.pushbutton_cut_kz,'UserData');
+% kz_cut_data=kz_cut_data{1};
+
 
 %extract selected bands
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
@@ -261,11 +275,18 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_symmetrize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-raw_data=get(handles.pushbutton_load,'UserData');
-raw_data=raw_data{1}
+
+% load rawdata
+raw_data=evalin('base','bxsf_data');
+% raw_data=get(handles.pushbutton_load,'UserData');
+% raw_data=raw_data{1}
+
+% use symmetrize function
 [ raw_data ] = symmetrize_mat( raw_data );
 
-    set(handles.pushbutton_load,'UserData',{raw_data});
+% write symmetrized result into workspace
+%set(handles.pushbutton_load,'UserData',{raw_data});
+assignin('base', 'bxsf_data', raw_data);
 
 set(handles.pushbutton_symmetrize,'BackgroundColor','green'); 
 
@@ -289,15 +310,17 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 figure_plot=str2num(get(handles.edit_fig_isosurface,'String'));
 isosurface_energy=str2num(get(handles.edit_energy_isosurface, 'String'));
 
-isosurface_data=get(handles.pushbutton_load,'UserData');
-isosurface_data=isosurface_data{1};
+%load bxsf data
+% isosurface_data=get(handles.pushbutton_load,'UserData');
+% isosurface_data=isosurface_data{1};
+isosurface_data=evalin('base','bxsf_data');
 
 %extract selected bands
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
 band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
 band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
-[X,Y,Z]=meshgrid(isosurface_data.kx, ...
-    isosurface_data.ky, ...
+[X,Y,Z]=meshgrid(isosurface_data.ky, ...
+    isosurface_data.kx, ...
     isosurface_data.kz);
 figure(figure_plot)
 hold on
@@ -346,6 +369,52 @@ function edit_fig_isosurface_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_fig_isosurface_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_fig_isosurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_no_interp_points_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_no_interp_points (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_no_interp_points as text
+%        str2double(get(hObject,'String')) returns contents of edit_no_interp_points as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_no_interp_points_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_no_interp_points (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_length_interp_vect_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_length_interp_vect (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_length_interp_vect as text
+%        str2double(get(hObject,'String')) returns contents of edit_length_interp_vect as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_length_interp_vect_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_length_interp_vect (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
