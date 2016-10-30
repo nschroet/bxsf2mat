@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 20:32:36
+% Last Modified by GUIDE v2.5 30-Oct-2016 14:07:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -301,9 +301,9 @@ function pushbutton_contour_plotting_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 
-% --- Executes on button press in pushbutton5.
-function pushbutton5_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton5 (see GCBO)
+% --- Executes on button press in pushbutton_plot_3D_isosurface.
+function pushbutton_plot_3D_isosurface_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_plot_3D_isosurface (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
