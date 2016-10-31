@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 30-Oct-2016 23:56:53
+% Last Modified by GUIDE v2.5 31-Oct-2016 11:51:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -431,6 +431,8 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
+
 % load 2D data from kz cut
 bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
 
@@ -453,18 +455,18 @@ s=0; %sets starting value for k-path length
 l=1; %initializes running index
 for ii=2:k_length
     if ~isnan(k_path(ii,1))
-        x=linspace(k_path(ii-1,1),k_path(ii,1),50); %interpolate 100 point path between kx cooridnates
-        y=linspace(k_path(ii-1,2),k_path(ii,2),50); %interpolate 100 point path between ky cooridnates
-        k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii-1,2);k_path(ii,1)-k_path(ii,2)]); % measure length between points
-        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},50);
+        x=linspace(k_path(ii-1,1),k_path(ii,1),51); %interpolate 100 point path between kx cooridnates
+        y=linspace(k_path(ii-1,2),k_path(ii,2),51); %interpolate 100 point path between ky cooridnates
+        k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
+        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},51);
         s=s+k_path_interp_length{l};
-        interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y));
+        interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y),5);
         l=l+1;
     end
 end;
 
 no_high_sym_paths=length(interpolated_energy);
-figure
+figure(fig_plot_cut)
 hold on
 for ii=1:no_high_sym_paths
 %     subplot(1,no_high_sym_paths,ii)
@@ -509,6 +511,29 @@ function edit9_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit9_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_fig_plot_cuts_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_fig_plot_cuts (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_fig_plot_cuts as text
+%        str2double(get(hObject,'String')) returns contents of edit_fig_plot_cuts as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_fig_plot_cuts_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_fig_plot_cuts (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
