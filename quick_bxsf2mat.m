@@ -432,7 +432,7 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % load 2D data from kz cut
-bxsf_kzcut_data=evalin('base',bxsf_kzcut_data);
+bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
 
 % select bands for plot
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
@@ -445,7 +445,7 @@ k_length=size(k_path);
 k_length=k_length(1);
 
 % interpolate cutting path
-[X,Y]=meshgrid(kx,ky);
+[X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
 
 k_path_interp={};
 interpolated_energy={};
@@ -453,20 +453,21 @@ s=0; %sets starting value for k-path length
 l=1; %initializes running index
 for ii=2:k_length
     if ~isnan(k_path(ii,1))
-        x=linspace(k_path(ii-1,1),k_path(ii,1),100); %interpolate 100 point path between kx cooridnates
-        y=linspace(k_path(ii-1,2),k_path(ii,2),100); %interpolate 100 point path between ky cooridnates
+        x=linspace(k_path(ii-1,1),k_path(ii,1),50); %interpolate 100 point path between kx cooridnates
+        y=linspace(k_path(ii-1,2),k_path(ii,2),50); %interpolate 100 point path between ky cooridnates
         k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii-1,2);k_path(ii,1)-k_path(ii,2)]); % measure length between points
-        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},100);
+        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},50);
         s=s+k_path_interp_length{l};
-        interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y);
+        interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y));
         l=l+1;
     end
 end;
 
 no_high_sym_paths=length(interpolated_energy);
 figure
+hold on
 for ii=1:no_high_sym_paths
-    subplot(1,no_high_sym_paths,ii)
+%     subplot(1,no_high_sym_paths,ii)
     plot(k_path_coordinates{ii},interpolated_energy{ii})
 end
 
