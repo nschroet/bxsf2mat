@@ -430,13 +430,45 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_plot_cut (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% load 2D data from kz cut
+bxsf_kzcut_data=evalin('base',bxsf_kzcut_data);
+
+% select bands for plot
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+% load high sym points for cut
 k_path = get(handles.uitable_k_path, 'data');
 k_length=size(k_path);
 k_length=k_length(1);
 
-for ii=1:k_length
-    if ~iselement(NaN,k_path(ii,1))
-        
+% interpolate cutting path
+[X,Y]=meshgrid(kx,ky);
+
+k_path_interp={};
+interpolated_energy={};
+s=0; %sets starting value for k-path length
+l=1; %initializes running index
+for ii=2:k_length
+    if ~isnan(k_path(ii,1))
+        x=linspace(k_path(ii-1,1),k_path(ii,1),100); %interpolate 100 point path between kx cooridnates
+        y=linspace(k_path(ii-1,2),k_path(ii,2),100); %interpolate 100 point path between ky cooridnates
+        k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii-1,2);k_path(ii,1)-k_path(ii,2)]); % measure length between points
+        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},100);
+        s=s+k_path_interp_length{l};
+        interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y);
+        l=l+1;
+    end
+end;
+
+no_high_sym_paths=length(interpolated_energy);
+figure
+for ii=1:no_high_sym_paths
+    subplot(1,no_high_sym_paths,ii)
+    plot(k_path_coordinates{ii},interpolated_energy{ii})
+end
 
 a=5;
 
