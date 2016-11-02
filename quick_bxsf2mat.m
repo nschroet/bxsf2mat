@@ -82,7 +82,7 @@ interp_points=str2num(get(handles.edit_no_interp_points,'String'));
 length_interp_vect=str2num(get(handles.edit_length_interp_vect,'String'));
 
 % load and convert bxsf
-rawdata_converted=bxsf2mat(load_bxsf,interp_points,length_interp_vect);
+rawdata_converted=bxsf2mat(load_bxsf_v2,interp_points,length_interp_vect);
 
 % write loaded data to workspace for other functions to access
 %set(handles.pushbutton_load,'UserData',{rawdata_converted});
