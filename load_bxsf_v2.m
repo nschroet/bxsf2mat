@@ -65,7 +65,7 @@ while ischar(tline)
                     Nz=dummy{3};
                     N=Nx*Ny*Nz;
                 case 3
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     G0=cell2mat(dummy);
                 case 4
                     dummy=textscan(tline, '%f %f %f')
