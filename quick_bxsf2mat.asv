@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 20:32:36
+% Last Modified by GUIDE v2.5 31-Oct-2016 11:51:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -276,14 +276,17 @@ function pushbutton_symmetrize_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% load rawdata
+raw_data=evalin('base','bxsf_data');
+% raw_data=get(handles.pushbutton_load,'UserData');
+% raw_data=raw_data{1}
 
-raw_data=get(handles.pushbutton_load,'UserData');
-raw_data=raw_data{1}
-
-% use symmetr
+% use symmetrize function
 [ raw_data ] = symmetrize_mat( raw_data );
 
-set(handles.pushbutton_load,'UserData',{raw_data});
+% write symmetrized result into workspace
+%set(handles.pushbutton_load,'UserData',{raw_data});
+assignin('base', 'bxsf_data', raw_data);
 
 set(handles.pushbutton_symmetrize,'BackgroundColor','green'); 
 
@@ -298,17 +301,19 @@ function pushbutton_contour_plotting_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 
-% --- Executes on button press in pushbutton5.
-function pushbutton5_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton5 (see GCBO)
+% --- Executes on button press in pushbutton_plot_3D_isosurface.
+function pushbutton_plot_3D_isosurface_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_plot_3D_isosurface (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 figure_plot=str2num(get(handles.edit_fig_isosurface,'String'));
 isosurface_energy=str2num(get(handles.edit_energy_isosurface, 'String'));
 
-isosurface_data=get(handles.pushbutton_load,'UserData');
-isosurface_data=isosurface_data{1};
+%load bxsf data
+% isosurface_data=get(handles.pushbutton_load,'UserData');
+% isosurface_data=isosurface_data{1};
+isosurface_data=evalin('base','bxsf_data');
 
 %extract selected bands
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
@@ -410,6 +415,126 @@ function edit_length_interp_vect_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_length_interp_vect_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_length_interp_vect (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_plot_cut.
+function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_plot_cut (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
+
+% load 2D data from kz cut
+bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
+
+% select bands for plot
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+% load high sym points for cut
+k_path = get(handles.uitable_k_path, 'data');
+k_length=size(k_path);
+k_length=k_length(1);
+
+% interpolate cutting path
+[X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
+
+k_path_interp={};
+interpolated_energy={};
+s=0; %sets starting value for k-path length
+l=1; %initializes running index
+for ii=2:k_length
+    if ~isnan(k_path(ii,1))
+        x=linspace(k_path(ii-1,1),k_path(ii,1),51); %interpolate 100 point path between kx cooridnates
+        y=linspace(k_path(ii-1,2),k_path(ii,2),51); %interpolate 100 point path between ky cooridnates
+        k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
+        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},51);
+        s=s+k_path_interp_length{l};
+%         interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y),5);
+        interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y),5);
+        l=l+1;
+    end
+end;
+
+no_high_sym_paths=length(interpolated_energy);
+figure(fig_plot_cut)
+hold on
+for ii=1:no_high_sym_paths
+%     subplot(1,no_high_sym_paths,ii)
+    plot(k_path_coordinates{ii},interpolated_energy{ii})
+end
+
+a=5;
+
+
+function edit8_Callback(hObject, eventdata, handles)
+% hObject    handle to edit8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit8 as text
+%        str2double(get(hObject,'String')) returns contents of edit8 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit8_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit9_Callback(hObject, eventdata, handles)
+% hObject    handle to edit9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit9 as text
+%        str2double(get(hObject,'String')) returns contents of edit9 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit9_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_fig_plot_cuts_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_fig_plot_cuts (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_fig_plot_cuts as text
+%        str2double(get(hObject,'String')) returns contents of edit_fig_plot_cuts as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_fig_plot_cuts_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_fig_plot_cuts (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
