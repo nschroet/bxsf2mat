@@ -68,13 +68,13 @@ while ischar(tline)
                     dummy=textscan(tline, '%f %f %f');
                     G0=cell2mat(dummy);
                 case 4
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v1=cell2mat(dummy);
                 case 5
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v2=cell2mat(dummy);
                 case 6
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v3=cell2mat(dummy);
 
             end   
