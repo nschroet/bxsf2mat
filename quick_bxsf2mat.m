@@ -1,7 +1,7 @@
 function varargout = quick_bxsf2mat(varargin)
 % QUICK_BXSF2MAT MATLAB code for quick_bxsf2mat.fig
 %      QUICK_BXSF2MAT, by itself, creates a new QUICK_BXSF2MAT or raises the existing
-%      singleton*.
+%      singleton*.kz
 %
 %      H = QUICK_BXSF2MAT returns the handle to a new QUICK_BXSF2MAT or the handle to
 %      the existing singleton*.
@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 31-Oct-2016 11:51:01
+% Last Modified by GUIDE v2.5 02-Nov-2016 17:28:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -118,11 +118,27 @@ kz_value=str2num(get(handles.edit_kz_value,'String'));
 kz_cut_data=raw_data;
 kz_cut_data.kz=kz_cut_data.kz(kz_index);
 
+kz_direction=str2num(get(handles.edit_kz_direction,'String'));
+
 %cut 2D slice out of 3D energy data
-for ii=1:kz_cut_data.N_band
-    kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
- 
-end;
+if kz_direction==[0 0 1]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
+    end;
+elseif kz_direction==[0 1 0]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,kz_index,:));
+    end;
+elseif kz_direction==[1 0 0]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(kz_index,:,:));
+    end;
+else
+    %construct plane of points perpendicular to kz direction. ky direction
+    %will be in the direction of the projection of the vector 
+    [X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz.*ones(1,length(raw_data.kx)));
+    [azimuth,elevation,r] = cart2sph(kz_direction);
+end    
 
 %write 3D data to UserData
 %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
@@ -534,6 +550,29 @@ function edit_fig_plot_cuts_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_fig_plot_cuts_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_fig_plot_cuts (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_kz_direction_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_kz_direction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_kz_direction as text
+%        str2double(get(hObject,'String')) returns contents of edit_kz_direction as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_kz_direction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_kz_direction (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
