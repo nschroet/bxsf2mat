@@ -41,6 +41,13 @@ mat_data.band_numbers_crossing_Ef=band_numbers_crossing_Ef;
 
 
 % clean fields from Teng's data 
+mat_data.original.Nx=mat_data.Nx;
+mat_data.original.Ny=mat_data.Ny;
+mat_data.original.Nz=mat_data.Nz;
+mat_data.original.v1=mat_data.v1;
+mat_data.original.v2=mat_data.v2;
+mat_data.original.v3=mat_data.v3;
+
 mat_data=rmfield(mat_data,{'Nx','Ny','Nz','G0','v1','v2','v3','E_range'});
 
 

@@ -118,14 +118,27 @@ kz_value=str2num(get(handles.edit_kz_value,'String'));
 kz_cut_data=raw_data;
 kz_cut_data.kz=kz_cut_data.kz(kz_index);
 
-kz_direction=str2mat(get(handles.edit_kz_cut_direction,'String'));
+kz_direction=str2num(get(handles.edit_kz_direction,'String'));
 
 %cut 2D slice out of 3D energy data
-%if kz_direction=
-for ii=1:kz_cut_data.N_band
-    kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
- 
-end;
+if kz_direction==[0 0 1]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
+    end;
+elseif kz_direction==[0 1 0]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,kz_index,:));
+    end;
+elseif kz_direction==[1 0 0]
+    for ii=1:kz_cut_data.N_band
+        kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(kz_index,:,:));
+    end;
+else
+    %construct plane of points perpendicular to kz direction. ky direction
+    %will be in the direction of the projection of the vector 
+    [X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz.*ones(1,length(raw_data.kx)));
+    [azimuth,elevation,r] = cart2sph(kz_direction);
+end    
 
 %write 3D data to UserData
 %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
