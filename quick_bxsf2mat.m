@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 31-Oct-2016 12:24:15
+% Last Modified by GUIDE v2.5 02-Dec-2016 16:21:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -82,7 +82,7 @@ interp_points=str2num(get(handles.edit_no_interp_points,'String'));
 length_interp_vect=str2num(get(handles.edit_length_interp_vect,'String'));
 
 % load and convert bxsf
-rawdata_converted=bxsf2mat(load_bxsf_v2,interp_points,length_interp_vect);
+rawdata_converted=bxsf2mat(load_bxsf,interp_points,length_interp_vect);
 
 % write loaded data to workspace for other functions to access
 %set(handles.pushbutton_load,'UserData',{rawdata_converted});
@@ -113,6 +113,15 @@ function pushbutton_cut_kz_Callback(hObject, eventdata, handles)
 %raw_data=get(handles.pushbutton_load,'UserData');
 raw_data=evalin('base','bxsf_data');
 %raw_data=raw_data{1};
+
+%load kz direction vector
+kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
+
+%rotate the data as needed
+[delta_a,delta_e,~] = cart2sph(kz_direction(1),kz_direction(2),kz_direction(3));
+
+g_hkl=(rotx((90-rad2deg(delta_e)))*rotz((90-rad2deg(delta_a)))*g_hkl')'; 
+  
 kz_value=str2num(get(handles.edit_kz_value,'String'));
 [~,kz_index]=min(abs(raw_data.kz-kz_value));
 kz_cut_data=raw_data;
@@ -327,7 +336,7 @@ hold on
 color_list=['y','m','cyan', 'red', 'green', 'blue'];
 for ii=1:length(band_list_plotting)
     fv = isosurface(X,Y,Z,isosurface_data.E{band_list_plotting(ii)},isosurface_energy);
-    patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii),'EdgeAlpha',0.2)
+    patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii))
 end;
 
 
@@ -545,18 +554,18 @@ end
 
 
 
-function edit11_Callback(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
+function edit_kz_direction_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_kz_direction (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit11 as text
-%        str2double(get(hObject,'String')) returns contents of edit11 as a double
+% Hints: get(hObject,'String') returns contents of edit_kz_direction as text
+%        str2double(get(hObject,'String')) returns contents of edit_kz_direction as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
+function edit_kz_direction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_kz_direction (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
