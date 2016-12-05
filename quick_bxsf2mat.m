@@ -93,7 +93,8 @@ set(handles.pushbutton_load,'BackgroundColor','green');
 
 % list bands in listbox
 list_band_numbers=num2cell(1:rawdata_converted.N_band);
-list_band_numbers_crossing_Ef=num2cell(rawdata_converted.band_numbers_crossing_Ef);
+% list_band_numbers_crossing_Ef=num2cell(rawdata_converted.band_numbers_crossing_Ef);
+list_band_numbers_crossing_Ef=list_band_numbers;
 
 if get(handles.radiobutton_band_crossing,'Value')
     set(handles.listbox_select_bands,'String',list_band_numbers_crossing_Ef);
