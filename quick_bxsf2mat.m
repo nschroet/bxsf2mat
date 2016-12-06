@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 02-Dec-2016 16:21:34
+% Last Modified by GUIDE v2.5 06-Dec-2016 15:16:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -120,8 +120,14 @@ kz_direction=kz_direction./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
 if kz_direction==[0 0 1]
+    [~,kz_index]=min(abs(raw_data.kz-kz_length));
     raw_data.kz=raw_data.kz(kz_index);
-    %TBD
+%     kz_cut_data=raw_data;
+%     kz_cut_data.kz=kz_cut_data.kz(kz_index);
+    for ii=1:raw_data.N_band
+    raw_data.E{ii}=squeeze(raw_data.E{ii}(:,:,kz_index));
+    end
+    plane=createPlane(kz_length*kz_direction,kz_direction);
 else
     % build list of 3D points forming 2D plane by defining
     % orthogonal vectors to g_hkl vector. Choose first vector as projection of
@@ -148,11 +154,12 @@ else
     for ii=1:raw_data.N_band
         data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
         raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
-        end;
     end;
-raw_data.kx=kx_2D;
-raw_data.ky=ky_2D;
-raw_data = rmfield(raw_data,'kz');
+    raw_data.kx=kx_2D;
+    raw_data.ky=ky_2D;
+    raw_data.kz=kz_length;
+end;
+raw_data.kz_plane=plane;
 %write 3D data to UserData
 %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
 assignin('base', 'bxsf_kzcut_data', raw_data);
@@ -594,3 +601,13 @@ function edit_kz_direction_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton_plot_kz_plane.
+function pushbutton_plot_kz_plane_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_plot_kz_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+bxsf_kzcut_plane=evalin('base','bxsf_kzcut_data.kz_plane');
+drawPlane3d(bxsf_kzcut_plane);
+alpha(0.2)
