@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 15:16:51
+% Last Modified by GUIDE v2.5 06-Dec-2016 15:25:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
