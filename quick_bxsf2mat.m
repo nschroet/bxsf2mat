@@ -116,41 +116,48 @@ raw_data=evalin('base','bxsf_data');
 
 %load kz direction vector
 kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
+kz_direction=kz_direction./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
-% build meshgrid that forms 2D plane made out of 3D points (e.g. all have the same z value)
-% then rotate that plane so that it is perpendicular to handles.edit_kz_direction vector
-% then use griddata to interpolate on that plane
-[X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz_length*ones(length(raw_data.kx),1));
 
-% or instead, build list of 3D points forming 2D plane by defining
-% orthogonal vectors to g_hkl vector
+% build list of 3D points forming 2D plane by defining
+% orthogonal vectors to g_hkl vector. Choose first vector as projection of
+% the z-axis to the new plane
+origin_plane=kz_length*kz_direction;
+plane=createPlane(origin_plane,kz_direction);
+kz_point=projPointOnPlane([0 0 1],plane);
+ky_2D=(kz_point-origin_plane)./norm(kz_point-origin_plane); %needs normalization
+kx_2D=cross(kz_direction,ky_2D);%needs normalization
 
-[delta_a,delta_e,~] = cart2sph(kz_direction(1),kz_direction(2),kz_direction(3));
-delta_a=rad2deg(delta_a);
-delta_e=rad2deg(delta_e);
-
-R_rot=rotz(delta_a)*roty((90-delta_e));
-
-temp=[X(:),Y(:),Z(:)]*R_rot.' ;
-sz=size(X);
-Xrot=reshape(temp(:,1),sz);
-Yrot=reshape(temp(:,2),sz);
-Zrot=reshape(temp(:,3),sz);
+% generate meshgrid of coordinate vectors for new 2D plane system
+[X,Y]=meshgrid(linspace(0,1,10));
+temp=[X(:)*kx_2D+Y(:)*ky_2D];
 
 % 
-% rot
-% griddata
-%   
-% kz_value=str2num(get(handles.edit_kz_value,'String'));
-% [~,kz_index]=min(abs(raw_data.kz-kz_value));
-% kz_cut_data=raw_data;
-% kz_cut_data.kz=kz_cut_data.kz(kz_index);
+% [delta_a,delta_e,~] = cart2sph(kz_direction(1),kz_direction(2),kz_direction(3));
+% delta_a=rad2deg(delta_a);
+% delta_e=rad2deg(delta_e);
 
-%cut 2D slice out of 3D energy data
-for ii=1:kz_cut_data.N_band
-%     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
- 
+% % build meshgrid that forms 2D plane made out of 3D points (e.g. all have the same z value)
+% % then rotate that plane so that it is perpendicular to handles.edit_kz_direction vector
+% % then use griddata to interpolate on that plane
+% [X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz_length*ones(length(raw_data.kx),1));
+% R_rot=rotz(delta_a)*roty((90-delta_e));
+% 
+% temp=[X(:),Y(:),Z(:)]*R_rot.' ;
+% sz=size(X);
+% Xrot=reshape(temp(:,1),sz);
+% Yrot=reshape(temp(:,2),sz);
+% Zrot=reshape(temp(:,3),sz);
+
+
+% kz_cut_data.kz=kz_cut_data.kz(kz_index);
+%     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
+%     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
+[Kx,Ky,Kz]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
+
+for ii=1:raw_data.N_band
+      raw_data.E{ii}=griddata(Kx,Ky,Kz, kz_cut_data.E{ii}, Xrot, Yrot, Zrot);
 end;
 
 %write 3D data to UserData
