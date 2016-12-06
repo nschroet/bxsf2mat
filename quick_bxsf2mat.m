@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 15:25:05
+% Last Modified by GUIDE v2.5 06-Dec-2016 15:51:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -141,14 +141,17 @@ else
     kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
 
     % generate meshgrid of coordinate vectors for new 2D plane system
-    [X,Y]=meshgrid(linspace(-1,1,100));
+    length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+    resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+    kx_ky_vectors=linspace(-length_kz_cut_plane_side,length_kz_cut_plane_side,resolution_cut);
+    [X,Y]=meshgrid(kx_ky_vectors);
     origin_offset=ones(numel(X),1);
 
     % with the coordinate vectors and 3D basis vectors of plane, construct set
     % of 3D points that are evenly spaced on the plane
     temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
-    kx_2D=linspace(-1,1,100)*norm(kx_2D_unit);
-    ky_2D=linspace(-1,1,100)*norm(ky_2D_unit);
+    kx_2D=kx_ky_vectors*norm(kx_2D_unit);
+    ky_2D=kx_ky_vectors*norm(ky_2D_unit);
 
     [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
     for ii=1:raw_data.N_band
@@ -244,9 +247,13 @@ end;
 figure(figure_plot)
 hold on
 for ii=1:length(band_list_plotting)
+%     contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+%         contour_energies,'ShowText','on','Color','red')
     contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-        contour_energies,'ShowText','on','Color','red')
+        contour_energies,'ShowText','on')
+
 end;
+axis equal
 
 
 
@@ -611,3 +618,49 @@ function pushbutton_plot_kz_plane_Callback(hObject, eventdata, handles)
 bxsf_kzcut_plane=evalin('base','bxsf_kzcut_data.kz_plane');
 drawPlane3d(bxsf_kzcut_plane);
 alpha(0.2)
+
+
+
+function edit_length_kz_cut_plane_side_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_length_kz_cut_plane_side (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_length_kz_cut_plane_side as text
+%        str2double(get(hObject,'String')) returns contents of edit_length_kz_cut_plane_side as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_length_kz_cut_plane_side_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_length_kz_cut_plane_side (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_points_kz_cut_plane_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_points_kz_cut_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_points_kz_cut_plane as text
+%        str2double(get(hObject,'String')) returns contents of edit_points_kz_cut_plane as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_points_kz_cut_plane_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_points_kz_cut_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
