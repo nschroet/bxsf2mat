@@ -130,26 +130,21 @@ kz_length=str2num(get(handles.edit_kz_value, 'String'));
 delta_a=rad2deg(delta_a);
 delta_e=rad2deg(delta_e);
 
-R_rot=rotz(delta_a)*roty((90-delta_e));
-
-temp=[X(:),Y(:),Z(:)]*R_rot.' ;
-sz=size(X);
 Xrot=reshape(temp(:,1),sz);
 Yrot=reshape(temp(:,2),sz);
 Zrot=reshape(temp(:,3),sz);
 
-% 
-% rot
-% griddata
-%   
-% kz_value=str2num(get(handles.edit_kz_value,'String'));
-% [~,kz_index]=min(abs(raw_data.kz-kz_value));
-% kz_cut_data=raw_data;
-% kz_cut_data.kz=kz_cut_data.kz(kz_index);
+
+% g_hkl=(rotx((90-rad2deg(delta_e)))*rotz((90-rad2deg(delta_a)))*g_hkl')'; 
+  
+kz_value=str2num(get(handles.edit_kz_value,'String'));
+[~,kz_index]=min(abs(raw_data.kz-kz_value));
+kz_cut_data=raw_data;
+kz_cut_data.kz=kz_cut_data.kz(kz_index);
 
 %cut 2D slice out of 3D energy data
 for ii=1:kz_cut_data.N_band
-%     kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
+    kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
  
 end;
 
