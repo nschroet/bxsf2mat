@@ -119,38 +119,37 @@ kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
 kz_direction=kz_direction./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
+if kz_direction==[0 0 1]
+    raw_data.kz=raw_data.kz(kz_index);
+    %TBD
+else
+    % build list of 3D points forming 2D plane by defining
+    % orthogonal vectors to g_hkl vector. Choose first vector as projection of
+    % the z-axis to the new plane (only seems to work for other planes than 
+    % 1 0 0, 0 1 0, 0 0 1 
+    origin_plane=kz_length*kz_direction;
+    plane=createPlane(origin_plane,kz_direction);
+    kz_point=projPointOnPlane([0 0 1],plane);
+    ky_2D_unit=round(kz_point-origin_plane,5);%needs better normalization
+    ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
+    kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
 
-% build list of 3D points forming 2D plane by defining
-% orthogonal vectors to g_hkl vector. Choose first vector as projection of
-% the z-axis to the new plane (only seems to work for other planes than 
-% 1 0 0, 0 1 0, 0 0 1 
-origin_plane=kz_length*kz_direction;
-plane=createPlane(origin_plane,kz_direction);
-kz_point=projPointOnPlane([0 0 1],plane);
-ky_2D_unit=round(kz_point-origin_plane,-5);%needs better normalization
-ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
-kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
+    % generate meshgrid of coordinate vectors for new 2D plane system
+    [X,Y]=meshgrid(linspace(-1,1,100));
+    origin_offset=ones(numel(X),1);
 
-% generate meshgrid of coordinate vectors for new 2D plane system
-[X,Y]=meshgrid(linspace(-1,1,100));
-origin_offset=ones(numel(X),1);
+    % with the coordinate vectors and 3D basis vectors of plane, construct set
+    % of 3D points that are evenly spaced on the plane
+    temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
+    kx_2D=linspace(-1,1,100)*norm(kx_2D_unit);
+    ky_2D=linspace(-1,1,100)*norm(ky_2D_unit);
 
-% with the coordinate vectors and 3D basis vectors of plane, construct set
-% of 3D points that are evenly spaced on the plane
-temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
-kx_2D=linspace(-1,1,100)*norm(kx_2D_unit);
-ky_2D=linspace(-1,1,100)*norm(ky_2D_unit);
-
-
-% kz_cut_data.kz=kz_cut_data.kz(kz_index);
-%     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
-%     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
-% [Kx,Ky,Kz]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
-[X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
-for ii=1:raw_data.N_band
-    data_2D_plane=interp3(X,Y,Z, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
-    raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
-end;
+    [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
+    for ii=1:raw_data.N_band
+        data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
+        raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
+        end;
+    end;
 raw_data.kx=kx_2D;
 raw_data.ky=ky_2D;
 raw_data = rmfield(raw_data,'kz');
