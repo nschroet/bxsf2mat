@@ -122,47 +122,41 @@ kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
 % build list of 3D points forming 2D plane by defining
 % orthogonal vectors to g_hkl vector. Choose first vector as projection of
-% the z-axis to the new plane
+% the z-axis to the new plane (only seems to work for other planes than 
+% 1 0 0, 0 1 0, 0 0 1 
 origin_plane=kz_length*kz_direction;
 plane=createPlane(origin_plane,kz_direction);
 kz_point=projPointOnPlane([0 0 1],plane);
-ky_2D=(kz_point-origin_plane)./norm(kz_point-origin_plane); %needs normalization
-kx_2D=cross(kz_direction,ky_2D);%needs normalization
+ky_2D_unit=round(kz_point-origin_plane,-5);%needs better normalization
+ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
+kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
 
 % generate meshgrid of coordinate vectors for new 2D plane system
-[X,Y]=meshgrid(linspace(0,1,10));
-temp=[X(:)*kx_2D+Y(:)*ky_2D];
+[X,Y]=meshgrid(linspace(-1,1,100));
+origin_offset=ones(numel(X),1);
 
-% 
-% [delta_a,delta_e,~] = cart2sph(kz_direction(1),kz_direction(2),kz_direction(3));
-% delta_a=rad2deg(delta_a);
-% delta_e=rad2deg(delta_e);
-
-% % build meshgrid that forms 2D plane made out of 3D points (e.g. all have the same z value)
-% % then rotate that plane so that it is perpendicular to handles.edit_kz_direction vector
-% % then use griddata to interpolate on that plane
-% [X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz_length*ones(length(raw_data.kx),1));
-% R_rot=rotz(delta_a)*roty((90-delta_e));
-% 
-% temp=[X(:),Y(:),Z(:)]*R_rot.' ;
-% sz=size(X);
-% Xrot=reshape(temp(:,1),sz);
-% Yrot=reshape(temp(:,2),sz);
-% Zrot=reshape(temp(:,3),sz);
+% with the coordinate vectors and 3D basis vectors of plane, construct set
+% of 3D points that are evenly spaced on the plane
+temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
+kx_2D=linspace(-1,1,100)*norm(kx_2D_unit);
+ky_2D=linspace(-1,1,100)*norm(ky_2D_unit);
 
 
 % kz_cut_data.kz=kz_cut_data.kz(kz_index);
 %     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
 %     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
-[Kx,Ky,Kz]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
-
+% [Kx,Ky,Kz]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
+[X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
 for ii=1:raw_data.N_band
-      raw_data.E{ii}=griddata(Kx,Ky,Kz, kz_cut_data.E{ii}, Xrot, Yrot, Zrot);
+    data_2D_plane=interp3(X,Y,Z, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
+    raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
 end;
-
+raw_data.kx=kx_2D;
+raw_data.ky=ky_2D;
+raw_data = rmfield(raw_data,'kz');
 %write 3D data to UserData
 %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
-assignin('base', 'bxsf_kzcut_data', kz_cut_data);
+assignin('base', 'bxsf_kzcut_data', raw_data);
 
 set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
