@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 15:51:55
+% Last Modified by GUIDE v2.5 06-Dec-2016 18:05:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -664,3 +664,30 @@ function edit_points_kz_cut_plane_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton_2D_energy_surface.
+function pushbutton_2D_energy_surface_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_2D_energy_surface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+figure_plot=str2num(get(handles.edit_plot_figure,'String'));
+
+%load kz cut data from workspace
+kz_cut_data=evalin('base','bxsf_kzcut_data');
+
+
+%extract selected bands
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+%plot contours
+figure(figure_plot)
+hold on
+for ii=1:length(band_list_plotting)
+
+    surf(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)})
+end;
+axis equal
