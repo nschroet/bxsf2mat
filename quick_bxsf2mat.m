@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 07-Dec-2016 11:42:43
+% Last Modified by GUIDE v2.5 07-Dec-2016 14:50:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -249,32 +249,21 @@ hold on
 color_switch_value=get(handles.popupmenu_contour_color,'Value');
 color_switch_string_list=get(handles.popupmenu_contour_color,'String');
 color=color_switch_string_list(color_switch_value);
-% switch color
-%     case 'y'
-%         color=[1 1 0];
-%     case 'm'
-%         color=[1 0 1];
-%     case 'c'
-%         color=[0 1 1];
-%     case 'r'
-%         color=[1 0 0];
-%     case 'g'
-%         color=[0 1 0];
-%     case 'b'
-%         color=[0 0 1];
-%     case 'k'
-%         color=[1 1 1];
-%     case 'w'
-%         color=[0 0 0];
-% end
+
+show_text_switch=get(handles.radiobutton_contour_text_labels,'Value');
+if show_text_switch
+    show_text_switch='on';
+else
+    show_text_switch='off';
+end
 
 for ii=1:length(band_list_plotting)
     if color_switch_value==1
         contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-        contour_energies,'ShowText','on');
+        contour_energies,'ShowText',show_text_switch);
     else
         contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-        contour_energies,'ShowText','on','Color',color{:});
+        contour_energies,'ShowText',show_text_switch,'Color',color{:});
     end
 end;
 axis equal
@@ -840,3 +829,12 @@ function popupmenu_contour_color_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in radiobutton_contour_text_labels.
+function radiobutton_contour_text_labels_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton_contour_text_labels (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton_contour_text_labels
