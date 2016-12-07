@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 02-Dec-2016 16:21:34
+% Last Modified by GUIDE v2.5 07-Dec-2016 00:13:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -116,41 +116,56 @@ raw_data=evalin('base','bxsf_data');
 
 %load kz direction vector
 kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
+kz_direction=kz_direction./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
-% build meshgrid that forms 2D plane made out of 3D points (e.g. all have the same z value)
-% then rotate that plane so that it is perpendicular to handles.edit_kz_direction vector
-% then use griddata to interpolate on that plane
-[X,Y,Z]=meshgrid(raw_data.kx,raw_data.ky,kz_length*ones(length(raw_data.kx),1));
+if kz_direction==[0 0 1]
+    [~,kz_index]=min(abs(raw_data.kz-kz_length));
+    raw_data.kz=raw_data.kz(kz_index);
+%     kz_cut_data=raw_data;
+%     kz_cut_data.kz=kz_cut_data.kz(kz_index);
+    for ii=1:raw_data.N_band
+    raw_data.E{ii}=squeeze(raw_data.E{ii}(:,:,kz_index));
+    end
+    plane=createPlane(kz_length*kz_direction,kz_direction);
+else
+    % build list of 3D points forming 2D plane by defining
+    % orthogonal vectors to g_hkl vector. Choose first vector as projection of
+    % the z-axis to the new plane (only seems to work for other planes than 
+    % 1 0 0, 0 1 0, 0 0 1 
+    origin_plane=kz_length*kz_direction;
+    plane=createPlane(origin_plane,kz_direction);
+    kz_point=projPointOnPlane([0 0 1],plane);
+    ky_2D_unit=round(kz_point-origin_plane,5);%needs better normalization
+    ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
+    kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
 
-% or instead, build list of 3D points forming 2D plane by defining
-% orthogonal vectors to g_hkl vector
+    % generate meshgrid of coordinate vectors for new 2D plane system
+    length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+    resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+    kx_ky_vectors=linspace(-length_kz_cut_plane_side,length_kz_cut_plane_side,resolution_cut);
+    [X,Y]=meshgrid(kx_ky_vectors);
+    origin_offset=ones(numel(X),1);
 
-[delta_a,delta_e,~] = cart2sph(kz_direction(1),kz_direction(2),kz_direction(3));
-delta_a=rad2deg(delta_a);
-delta_e=rad2deg(delta_e);
+    % with the coordinate vectors and 3D basis vectors of plane, construct set
+    % of 3D points that are evenly spaced on the plane
+    temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
+    kx_2D=kx_ky_vectors*norm(kx_2D_unit);
+    ky_2D=kx_ky_vectors*norm(ky_2D_unit);
 
-Xrot=reshape(temp(:,1),sz);
-Yrot=reshape(temp(:,2),sz);
-Zrot=reshape(temp(:,3),sz);
-
-
-% g_hkl=(rotx((90-rad2deg(delta_e)))*rotz((90-rad2deg(delta_a)))*g_hkl')'; 
-  
-kz_value=str2num(get(handles.edit_kz_value,'String'));
-[~,kz_index]=min(abs(raw_data.kz-kz_value));
-kz_cut_data=raw_data;
-kz_cut_data.kz=kz_cut_data.kz(kz_index);
-
-%cut 2D slice out of 3D energy data
-for ii=1:kz_cut_data.N_band
-    kz_cut_data.E{ii}=squeeze(kz_cut_data.E{ii}(:,:,kz_index));
- 
+    [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
+    for ii=1:raw_data.N_band
+        data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
+        raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
+    end;
+    raw_data.kx=kx_2D;
+    raw_data.ky=ky_2D;
+    raw_data.kz=kz_length;
 end;
-
+raw_data.kz_plane=plane;
 %write 3D data to UserData
 %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
-assignin('base', 'bxsf_kzcut_data', kz_cut_data);
+assignin('base', 'bxsf_kzcut_data', raw_data);
 
 set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
@@ -232,9 +247,13 @@ end;
 figure(figure_plot)
 hold on
 for ii=1:length(band_list_plotting)
+%     contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+%         contour_energies,'ShowText','on','Color','red')
     contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-        contour_energies,'ShowText','on','Color','red')
+        contour_energies,'ShowText','on')
+
 end;
+axis equal
 
 
 
@@ -585,6 +604,157 @@ function edit_kz_direction_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_plot_kz_plane.
+function pushbutton_plot_kz_plane_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_plot_kz_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+bxsf_kzcut_plane=evalin('base','bxsf_kzcut_data.kz_plane');
+drawPlane3d(bxsf_kzcut_plane);
+alpha(0.2)
+
+
+
+function edit_length_kz_cut_plane_side_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_length_kz_cut_plane_side (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_length_kz_cut_plane_side as text
+%        str2double(get(hObject,'String')) returns contents of edit_length_kz_cut_plane_side as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_length_kz_cut_plane_side_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_length_kz_cut_plane_side (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_points_kz_cut_plane_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_points_kz_cut_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_points_kz_cut_plane as text
+%        str2double(get(hObject,'String')) returns contents of edit_points_kz_cut_plane as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_points_kz_cut_plane_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_points_kz_cut_plane (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_2D_energy_surface.
+function pushbutton_2D_energy_surface_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_2D_energy_surface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+figure_plot=str2num(get(handles.edit_plot_figure,'String'));
+
+%load kz cut data from workspace
+kz_cut_data=evalin('base','bxsf_kzcut_data');
+
+
+%extract selected bands
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+%plot contours
+figure(figure_plot)
+hold on
+for ii=1:length(band_list_plotting)
+
+    surf(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)})
+end;
+axis equal
+
+
+% --- Executes on button press in pushbutton_translate_BZ.
+function pushbutton_translate_BZ_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_translate_BZ (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% load rawdata
+raw_data=evalin('base','bxsf_data');
+
+% find BZ boundary index
+BZ_boundary=str2num(get(handles.edit_BZ_boundary,'String'));
+
+[~,BZ_boundary_index]=min(abs(abs(raw_data.kx)-BZ_boundary));
+BZ_boundary_index2=raw_data
+% write symmetrized result into workspace
+%set(handles.pushbutton_load,'UserData',{raw_data});
+assignin('base', 'bxsf_data', raw_data);
+
+set(handles.pushbutton_symmetrize,'BackgroundColor','green'); 
+
+a=5;
+
+
+function edit_BZ_boundary_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_BZ_boundary (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_BZ_boundary as text
+%        str2double(get(hObject,'String')) returns contents of edit_BZ_boundary as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_BZ_boundary_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_BZ_boundary (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu_translation_direction.
+function popupmenu_translation_direction_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_direction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_translation_direction contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_translation_direction
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_translation_direction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_direction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');

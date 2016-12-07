@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 18:05:24
+% Last Modified by GUIDE v2.5 07-Dec-2016 00:13:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -691,3 +691,87 @@ for ii=1:length(band_list_plotting)
     surf(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)})
 end;
 axis equal
+
+
+% --- Executes on button press in pushbutton_translate_BZ.
+function pushbutton_translate_BZ_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_translate_BZ (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% load rawdata
+raw_data=evalin('base','bxsf_data');
+
+% find BZ boundary index
+BZ_boundary=str2num(get(handles.edit_BZ_boundary,'String'));
+
+[~,BZ_boundary_index]=min(abs(abs(raw_data.kx)-BZ_boundary));
+BZ_boundary_index2=length(raw_data.kz)-BZ_boundary_index;
+
+% cut index vector kx at boundary and then replicate twice along direction
+raw_data.kx=raw_data.kx(BZ_boundary_index:BZ_boundary_index2);
+raw_data.kx=[raw_data.kx-2*BZ_boundary,raw_data.kx,raw_data.kx+2*BZ_boundary];
+raw_data.ky=raw_data.kx;
+% raw_data.kz=raw_data.kx;
+
+for ii=1:raw_data.N_band
+    temp=raw_data.E{ii};
+    temp=temp(BZ_boundary_index:BZ_boundary_index2,BZ_boundary_index:BZ_boundary_index2,...
+        :); %cut ends of cube at BZ boundary
+    temp=cat(1,temp,temp,temp);
+    temp=cat(2,temp,temp,temp);
+%     temp=cat(3,temp,temp,temp);
+    raw_data.E{ii}=temp;
+end;
+% write symmetrized result into workspace
+%set(handles.pushbutton_load,'UserData',{raw_data});
+assignin('base', 'bxsf_data', raw_data);
+
+set(handles.pushbutton_translate_BZ,'BackgroundColor','green'); 
+
+
+
+
+function edit_BZ_boundary_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_BZ_boundary (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_BZ_boundary as text
+%        str2double(get(hObject,'String')) returns contents of edit_BZ_boundary as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_BZ_boundary_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_BZ_boundary (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu_translation_direction.
+function popupmenu_translation_direction_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_direction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_translation_direction contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_translation_direction
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_translation_direction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_direction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
