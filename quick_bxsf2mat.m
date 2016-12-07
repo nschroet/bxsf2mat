@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 07-Dec-2016 11:04:27
+% Last Modified by GUIDE v2.5 07-Dec-2016 11:42:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -246,12 +246,36 @@ end;
 
 figure(figure_plot)
 hold on
-for ii=1:length(band_list_plotting)
-%     contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-%         contour_energies,'ShowText','on','Color','red')
-    contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
-        contour_energies,'ShowText','on')
+color_switch_value=get(handles.popupmenu_contour_color,'Value');
+color_switch_string_list=get(handles.popupmenu_contour_color,'String');
+color=color_switch_string_list(color_switch_value);
+% switch color
+%     case 'y'
+%         color=[1 1 0];
+%     case 'm'
+%         color=[1 0 1];
+%     case 'c'
+%         color=[0 1 1];
+%     case 'r'
+%         color=[1 0 0];
+%     case 'g'
+%         color=[0 1 0];
+%     case 'b'
+%         color=[0 0 1];
+%     case 'k'
+%         color=[1 1 1];
+%     case 'w'
+%         color=[0 0 0];
+% end
 
+for ii=1:length(band_list_plotting)
+    if color_switch_value==1
+        contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        contour_energies,'ShowText','on');
+    else
+        contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        contour_energies,'ShowText','on','Color',color{:});
+    end
 end;
 axis equal
 
@@ -793,3 +817,26 @@ function pushbutton_delete_gca_surface_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 h = findobj(gca,'Type','surface');
 delete(h(:));
+
+
+% --- Executes on selection change in popupmenu_contour_color.
+function popupmenu_contour_color_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_contour_color (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_contour_color contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_contour_color
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_contour_color_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_contour_color (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
