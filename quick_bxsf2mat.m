@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 07-Dec-2016 00:13:23
+% Last Modified by GUIDE v2.5 07-Dec-2016 11:04:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -775,3 +775,21 @@ function popupmenu_translation_direction_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton_delete_gca_contours.
+function pushbutton_delete_gca_contours_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_delete_gca_contours (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+h = findobj(gca,'Type','contour');
+delete(h(:));
+
+
+% --- Executes on button press in pushbutton_delete_gca_surface.
+function pushbutton_delete_gca_surface_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_delete_gca_surface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+h = findobj(gca,'Type','surface');
+delete(h(:));
