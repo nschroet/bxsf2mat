@@ -383,7 +383,7 @@ hold on
 color_list=['y','m','cyan', 'red', 'green', 'blue'];
 for ii=1:length(band_list_plotting)
     fv = isosurface(X,Y,Z,isosurface_data.E{band_list_plotting(ii)},isosurface_energy);
-    patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii))
+    patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii), 'EdgeAlpha',0.2)
 end;
 
 
@@ -725,15 +725,15 @@ BZ_boundary_index2=length(raw_data.kz)-BZ_boundary_index;
 raw_data.kx=raw_data.kx(BZ_boundary_index:BZ_boundary_index2);
 raw_data.kx=[raw_data.kx-2*BZ_boundary,raw_data.kx,raw_data.kx+2*BZ_boundary];
 raw_data.ky=raw_data.kx;
-% raw_data.kz=raw_data.kx;
+raw_data.kz=raw_data.kx;
 
 for ii=1:raw_data.N_band
     temp=raw_data.E{ii};
     temp=temp(BZ_boundary_index:BZ_boundary_index2,BZ_boundary_index:BZ_boundary_index2,...
-        :); %cut ends of cube at BZ boundary
+        BZ_boundary_index:BZ_boundary_index2); %cut ends of cube at BZ boundary
     temp=cat(1,temp,temp,temp);
     temp=cat(2,temp,temp,temp);
-%     temp=cat(3,temp,temp,temp);
+    temp=cat(3,temp,temp,temp);
     raw_data.E{ii}=temp;
 end;
 % write symmetrized result into workspace
