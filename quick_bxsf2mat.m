@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 07-Dec-2016 14:50:05
+% Last Modified by GUIDE v2.5 18-Dec-2016 17:48:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -513,7 +513,12 @@ k_path = get(handles.uitable_k_path, 'data');
 k_length=size(k_path);
 k_length=k_length(1);
 
-% interpolate cutting path
+%load interpolation parameters
+no_interp_points_k_path=str2num(get(handles.edit_no_interp_points_k_path,'String'));
+interp_method=get(handles.popupmenu_k_path_interp_method,'String');
+interp_method=interp_method(get(handles.popupmenu_k_path_interp_method,'Value'));
+
+ % interpolate cutting path
 [X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
 
 k_path_interp={};
@@ -522,12 +527,13 @@ s=0; %sets starting value for k-path length
 l=1; %initializes running index
 for ii=2:k_length
     if ~isnan(k_path(ii,1))
-        x=linspace(k_path(ii-1,1),k_path(ii,1),51); %interpolate 100 point path between kx cooridnates
-        y=linspace(k_path(ii-1,2),k_path(ii,2),51); %interpolate 100 point path between ky cooridnates
+        x=linspace(k_path(ii-1,1),k_path(ii,1),no_interp_points_k_path); %interpolate 100 point path between kx cooridnates
+        y=linspace(k_path(ii-1,2),k_path(ii,2),no_interp_points_k_path); %interpolate 100 point path between ky cooridnates
         k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
-        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},51);
+        k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},no_interp_points_k_path);
         s=s+k_path_interp_length{l};
-        interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y),5);
+%        interpolated_energy{l}=smooth(interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y),5);
+        interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band_list_plotting},x,y, interp_method{:});
         l=l+1;
     end
 end;
@@ -849,3 +855,49 @@ function radiobutton_contour_text_labels_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton_contour_text_labels
+
+
+
+function edit_no_interp_points_k_path_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_no_interp_points_k_path (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_no_interp_points_k_path as text
+%        str2double(get(hObject,'String')) returns contents of edit_no_interp_points_k_path as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_no_interp_points_k_path_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_no_interp_points_k_path (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu_k_path_interp_method.
+function popupmenu_k_path_interp_method_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_k_path_interp_method (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_k_path_interp_method contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_k_path_interp_method
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_k_path_interp_method_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_k_path_interp_method (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
