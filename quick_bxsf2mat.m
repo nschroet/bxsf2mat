@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 18-Dec-2016 17:48:12
+% Last Modified by GUIDE v2.5 29-Jan-2017 22:58:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -228,6 +228,7 @@ kz_cut_data=evalin('base','bxsf_kzcut_data');
 % kz_cut_data=get(handles.pushbutton_cut_kz,'UserData');
 % kz_cut_data=kz_cut_data{1};
 
+ 
 
 %extract selected bands
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
@@ -257,15 +258,23 @@ else
     show_text_switch='off';
 end
 
+t1 = hgtransform;
+
 for ii=1:length(band_list_plotting)
     if color_switch_value==1
-        contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        h=contour('Parent',t1,kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
         contour_energies,'ShowText',show_text_switch);
     else
-        contour(kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        h=contour('Parent',t1,kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
         contour_energies,'ShowText',show_text_switch,'Color',color{:});
     end
+    %set(h,'Parent',t1)
 end;
+
+angle=str2num(get(handles.edit_rot_angle,'String'));
+angle=deg2rad(angle);
+Rxy = makehgtform('zrotate',angle);
+set(t1,'Matrix',Rxy)
 axis equal
 
 
@@ -897,6 +906,29 @@ function popupmenu_k_path_interp_method_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_rot_angle_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_rot_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_rot_angle as text
+%        str2double(get(hObject,'String')) returns contents of edit_rot_angle as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_rot_angle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_rot_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
