@@ -64,11 +64,7 @@ for ii=1:bxsf_rawdata.N_band
     % twice, hence the subsequent 2:end parts of the code
     tmp=bxsf_rawdata.E{ii};
     tmp=cat(1,tmp,tmp(2:end,:,:));
-    tmp=cat(2,tmp,tmp(:,2:end,:));
-    tmp=cat(3,tmp,tmp(:,:,2:end));
-    
-    % now interpolation happens on enlarged grid
-    data_cartesian=interp3(X,Y,Z, tmp, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
+    data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
     mat_data.E{ii}=mat_data.E{ii}-mat_data.Ef;
 end;
