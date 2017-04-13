@@ -45,7 +45,7 @@ cartesian_length_vect=linspace(-1*interpolation_length,1*interpolation_length,no
 points_cartesian = [X_1(:), Y_1(:), Z_1(:)];
 
 % Transform the coordinates
-% points_transformed = points_cartesian * trafo_matrix_cart_2_bxsf_vect_space;
+% points_transformed =  trafo_matrix_cart_2_bxsf_vect_space * points_cartesian (there was a major bug here earlier that had this product the other way around ;
 points_transformed = (trafo_matrix_cart_2_bxsf_vect_space * points_cartesian')';
 
 mat_data=bxsf_rawdata;
