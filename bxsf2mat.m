@@ -41,7 +41,7 @@ mat_data.band_numbers_crossing_Ef=band_numbers_crossing_Ef;
 
 
 % clean fields from Teng's data 
-mat_data=rmfield(mat_data,{'Nx','Ny','Nz','G0','v1','v2','v3','E_range'});
+mat_data=rmfield(mat_data,{'Nx','Ny','Nz','G0','E_range'});
 
 
 %generate normalized meshgrid for interpolation (since we are in the
