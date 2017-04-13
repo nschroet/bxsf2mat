@@ -116,8 +116,10 @@ raw_data=evalin('base','bxsf_data');
 
 %load kz direction vector
 kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
-kz_direction=kz_direction./norm(kz_direction);
+kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_direction(3)*raw_data.v3;
+kz_direction=kz_direction'./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
+
 
 if kz_direction==[0 0 1]
     [~,kz_index]=min(abs(raw_data.kz-kz_length));
