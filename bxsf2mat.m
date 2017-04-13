@@ -44,11 +44,15 @@ mat_data.band_numbers_crossing_Ef=band_numbers_crossing_Ef;
 mat_data=rmfield(mat_data,{'Nx','Ny','Nz','G0','v1','v2','v3','E_range'});
 
 
-%generate normalized meshgrid for interpolation
-cartesian_length_vect=linspace(0,1,bxsf_rawdata.Nx);
-[X,Y,Z] = meshgrid(cartesian_length_vect,...
-    cartesian_length_vect,...
-    cartesian_length_vect);
+%generate normalized meshgrid for interpolation (since we are in the
+%non-orthogonal space, which is now treated as a cartesian cube)
+cartesian_length_vect1=linspace(0,1,bxsf_rawdata.Nx);
+cartesian_length_vect2=linspace(0,1,bxsf_rawdata.Ny);
+cartesian_length_vect3=linspace(0,1,bxsf_rawdata.Nz);
+
+[X,Y,Z] = meshgrid(cartesian_length_vect1,...
+    cartesian_length_vect2,...
+    cartesian_length_vect3);
 for ii=1:bxsf_rawdata.N_band
     %// interpolate the energies of the transformed cartesian coordinates
     data_cartesian=interp3(X,Y,Z, bxsf_rawdata.E{ii}, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
