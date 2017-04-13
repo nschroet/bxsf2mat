@@ -38,7 +38,7 @@ while ischar(tline)
         k = strfind(tline, 'BANDGRID_3D');
         
         if ~isempty(k)
-            bandgrid_counter=bandgrid_counter+1
+            bandgrid_counter=bandgrid_counter+1;
         end
 
         if bandgrid_counter==2 
@@ -57,7 +57,7 @@ while ischar(tline)
 
             switch counter
                 case 1
-                    N_band=str2num(tline)
+                    N_band=str2num(tline);
                 case 2
                     dummy=textscan(tline, '%f %f %f');
                     Nx=dummy{1};
@@ -68,13 +68,13 @@ while ischar(tline)
                     dummy=textscan(tline, '%f %f %f');
                     G0=cell2mat(dummy);
                 case 4
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v1=cell2mat(dummy);
                 case 5
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v2=cell2mat(dummy);
                 case 6
-                    dummy=textscan(tline, '%f %f %f')
+                    dummy=textscan(tline, '%f %f %f');
                     v3=cell2mat(dummy);
 
             end   
@@ -99,10 +99,11 @@ for j=1:N_band
     E_range(j,1)=min(M(:));
     E_range(j,2)=max(M(:));
     fgetl(fid);
+    display(['loaded band number ',num2str(j)])
 end
 
- a=5;   
-    disp(tline)
+%  a=5;   
+%   disp(tline)
   fclose(fid);
 
 Rawdata.E=value;
