@@ -14,10 +14,8 @@ function [mat_data]=bxsf2mat(bxsf_rawdata,no_interpolation_points,interpolation_
 % however, to simplify the subsequent plotting, we choose a cartesian
 % coordinate system that has the z axis aligned with the last vector if the
 % bxsf reciprocal lattice file. Thus, we will need to rotate the reciprocal
-% lattice vectors of the bxsf file such that the third vector is aligned
-% with the z axis
+% lattice vectors of the bxsf fil
 
-% load bxsf vectors
 b_1=bxsf_rawdata.v1';
 b_2=bxsf_rawdata.v2';
 b_3=bxsf_rawdata.v3';
@@ -25,13 +23,10 @@ b_3=bxsf_rawdata.v3';
 
 [azimuth,elevation,~] = cart2sph(b_3(1),b_3(2),b_3(3));
 First_trafo_matrix=roty(rad2deg(elevation)-90)*rotz(-rad2deg(azimuth));
-
-%transform vectors and copy them to the file
 matrix_bxsf_vect=First_trafo_matrix*[b_1,b_2,b_3];
 bxsf_rawdata.v1=matrix_bxsf_vect(:,1);
 bxsf_rawdata.v2=matrix_bxsf_vect(:,2);
 bxsf_rawdata.v3=matrix_bxsf_vect(:,3);
-
 %invert the matrix to get trafo from cartesian to bxfs vectos
 trafo_matrix_cart_2_bxsf_vect_space=inv(matrix_bxsf_vect);
 
