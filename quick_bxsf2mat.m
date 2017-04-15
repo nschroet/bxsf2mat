@@ -658,7 +658,7 @@ function pushbutton_plot_kz_plane_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 bxsf_kzcut_plane=evalin('base','bxsf_kzcut_data.kz_plane');
 drawPlane3d(bxsf_kzcut_plane);
-alpha(0.2)
+% alpha(0.2)
 
 
 
