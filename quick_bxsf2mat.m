@@ -121,7 +121,7 @@ kz_direction=kz_direction'./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
 
-if kz_direction==[0 0 1]
+if norm(kz_direction-[0 0 1])<0.001
     [~,kz_index]=min(abs(raw_data.kz-kz_length));
     raw_data.kz=raw_data.kz(kz_index);
 %     kz_cut_data=raw_data;
