@@ -511,7 +511,7 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 
 fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
 plotting_style=get(handles.edit_Evsk_plot_style,'String');
-plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'));
+plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'),:);
 
 % load 2D data from kz cut
 bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
@@ -541,12 +541,12 @@ l=1; %initializes running index
 
 %cycle through bands
 
-for band=band_list_plotting
+for band=band_list_plotting'
     %cycle through paths and plot the selected band in all paths
     for ii=2:k_length
         if ~isnan(k_path(ii,1))
-            x=linspace(k_path(ii-1,1),k_path(ii,1),no_interp_points_k_path); %interpolate 100 point path between kx cooridnates
-            y=linspace(k_path(ii-1,2),k_path(ii,2),no_interp_points_k_path); %interpolate 100 point path between ky cooridnates
+            x=linspace(k_path(ii-1,1),k_path(ii,1),no_interp_points_k_path); 
+            y=linspace(k_path(ii-1,2),k_path(ii,2),no_interp_points_k_path); 
             k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
             k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},no_interp_points_k_path);
             s=s+k_path_interp_length{l};
@@ -554,14 +554,16 @@ for band=band_list_plotting
             l=l+1;
         end
     end;
+    s=0;
     number_high_sym_paths=length(interpolated_energy);
-
+    
     figure(fig_plot_cut)
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
     plot(k_path_coordinates{ii},interpolated_energy{ii},'LineStyle',plotting_style)
     end
+    hold off
 end
     
 
