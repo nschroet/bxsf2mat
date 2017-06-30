@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 29-Jun-2017 14:50:05
+% Last Modified by GUIDE v2.5 30-Jun-2017 15:36:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -977,3 +977,12 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.listbox_select_bands,'String',num2cell(evalin('base','bxsf_data.band_numbers_crossing_Ef')));
 
+
+
+% --- Executes on button press in pushbutton13.
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+h=findall(gca,'Type','line');
+delete(h(:));
