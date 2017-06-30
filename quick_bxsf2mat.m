@@ -119,54 +119,10 @@ kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_directio
 kz_direction=kz_direction'./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
-
-if norm(kz_direction-[0 0 1])<0.001
-    [~,kz_index]=min(abs(raw_data.kz-kz_length));
-    raw_data.kz=raw_data.kz(kz_index);
-%     kz_cut_data=raw_data;
-%     kz_cut_data.kz=kz_cut_data.kz(kz_index);
-    for ii=1:raw_data.N_band
-    raw_data.E{ii}=squeeze(raw_data.E{ii}(:,:,kz_index));
-    end
-    plane=createPlane(kz_length*kz_direction,kz_direction);
-else
-    % build list of 3D points forming 2D plane by defining
-    % orthogonal vectors to g_hkl vector. Choose first vector as projection of
-    % the z-axis to the new plane (only seems to work for other planes than 
-    % 1 0 0, 0 1 0, 0 0 1 
-    origin_plane=kz_length*kz_direction;
-    plane=createPlane(origin_plane,kz_direction);
-    kz_point=projPointOnPlane([0 0 1],plane);
-    ky_2D_unit=round(kz_point-origin_plane,5);%needs better normalization
-    ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
-    kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
-
-    % generate meshgrid of coordinate vectors for new 2D plane system
-    length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
-    resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
-    kx_ky_vectors=linspace(-length_kz_cut_plane_side,length_kz_cut_plane_side,resolution_cut);
-    [X,Y]=meshgrid(kx_ky_vectors);
-    origin_offset=ones(numel(X),1);
-
-    % with the coordinate vectors and 3D basis vectors of plane, construct set
-    % of 3D points that are evenly spaced on the plane
-    temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
-    kx_2D=kx_ky_vectors*norm(kx_2D_unit);
-    ky_2D=kx_ky_vectors*norm(ky_2D_unit);
-
-    [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
-    for ii=1:raw_data.N_band
-        data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
-        raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
-    end;
-    raw_data.kx=kx_2D;
-    raw_data.ky=ky_2D;
-    raw_data.kz=kz_length;
-end;
-raw_data.kz_plane=plane;
-%write 3D data to UserData
-%set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
-assignin('base', 'bxsf_kzcut_data', raw_data);
+length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+assignin('base', 'bxsf_kzcut_data', cut_kz_plane(raw_data,kz_direction,...
+    kz_length,length_kz_cut_plane_side,resolution_cut));
 
 set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
@@ -993,6 +949,8 @@ function pushbutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton14 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+a=5;
+pushbutton_plot_cut_Callback(handles.pushbutton_plot_cut,[],handles);
 
 
 

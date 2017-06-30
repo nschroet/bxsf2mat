@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 29-Jun-2017 14:06:12
+% Last Modified by GUIDE v2.5 30-Jun-2017 15:41:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -119,54 +119,55 @@ kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_directio
 kz_direction=kz_direction'./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
-
-if norm(kz_direction-[0 0 1])<0.001
-    [~,kz_index]=min(abs(raw_data.kz-kz_length));
-    raw_data.kz=raw_data.kz(kz_index);
-%     kz_cut_data=raw_data;
-%     kz_cut_data.kz=kz_cut_data.kz(kz_index);
-    for ii=1:raw_data.N_band
-    raw_data.E{ii}=squeeze(raw_data.E{ii}(:,:,kz_index));
-    end
-    plane=createPlane(kz_length*kz_direction,kz_direction);
-else
-    % build list of 3D points forming 2D plane by defining
-    % orthogonal vectors to g_hkl vector. Choose first vector as projection of
-    % the z-axis to the new plane (only seems to work for other planes than 
-    % 1 0 0, 0 1 0, 0 0 1 
-    origin_plane=kz_length*kz_direction;
-    plane=createPlane(origin_plane,kz_direction);
-    kz_point=projPointOnPlane([0 0 1],plane);
-    ky_2D_unit=round(kz_point-origin_plane,5);%needs better normalization
-    ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
-    kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
-
-    % generate meshgrid of coordinate vectors for new 2D plane system
-    length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
-    resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
-    kx_ky_vectors=linspace(-length_kz_cut_plane_side,length_kz_cut_plane_side,resolution_cut);
-    [X,Y]=meshgrid(kx_ky_vectors);
-    origin_offset=ones(numel(X),1);
-
-    % with the coordinate vectors and 3D basis vectors of plane, construct set
-    % of 3D points that are evenly spaced on the plane
-    temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
-    kx_2D=kx_ky_vectors*norm(kx_2D_unit);
-    ky_2D=kx_ky_vectors*norm(ky_2D_unit);
-
-    [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
-    for ii=1:raw_data.N_band
-        data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
-        raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
-    end;
-    raw_data.kx=kx_2D;
-    raw_data.ky=ky_2D;
-    raw_data.kz=kz_length;
-end;
-raw_data.kz_plane=plane;
-%write 3D data to UserData
-%set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
-assignin('base', 'bxsf_kzcut_data', raw_data);
+length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+% 
+% if norm(kz_direction-[0 0 1])<0.001
+%     [~,kz_index]=min(abs(raw_data.kz-kz_length));
+%     raw_data.kz=raw_data.kz(kz_index);
+% %     kz_cut_data=raw_data;
+% %     kz_cut_data.kz=kz_cut_data.kz(kz_index);
+%     for ii=1:raw_data.N_band
+%     raw_data.E{ii}=squeeze(raw_data.E{ii}(:,:,kz_index));
+%     end
+%     plane=createPlane(kz_length*kz_direction,kz_direction);
+% else
+%     % build list of 3D points forming 2D plane by defining
+%     % orthogonal vectors to g_hkl vector. Choose first vector as projection of
+%     % the z-axis to the new plane (only seems to work for other planes than 
+%     % 1 0 0, 0 1 0, 0 0 1 
+%     origin_plane=kz_length*kz_direction;
+%     plane=createPlane(origin_plane,kz_direction);
+%     kz_point=projPointOnPlane([0 0 1],plane);
+%     ky_2D_unit=round(kz_point-origin_plane,5);%needs better normalization
+%     ky_2D_unit=ky_2D_unit./norm(ky_2D_unit);
+%     kx_2D_unit=cross(kz_direction,ky_2D_unit);%needs normalization
+% 
+%     % generate meshgrid of coordinate vectors for new 2D plane system
+% 
+%     kx_ky_vectors=linspace(-length_kz_cut_plane_side,length_kz_cut_plane_side,resolution_cut);
+%     [X,Y]=meshgrid(kx_ky_vectors);
+%     origin_offset=ones(numel(X),1);
+% 
+%     % with the coordinate vectors and 3D basis vectors of plane, construct set
+%     % of 3D points that are evenly spaced on the plane
+%     temp=X(:)*kx_2D_unit+Y(:)*ky_2D_unit+origin_offset(:)*origin_plane;
+%     kx_2D=kx_ky_vectors*norm(kx_2D_unit);
+%     ky_2D=kx_ky_vectors*norm(ky_2D_unit);
+% 
+%     [KX,KY,KZ]=meshgrid(raw_data.kx,raw_data.ky,raw_data.kz);
+%     for ii=1:raw_data.N_band
+%         data_2D_plane=interp3(KX,KY,KZ, raw_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
+%         raw_data.E{ii}=reshape(data_2D_plane,length(kx_2D), length(ky_2D));
+%     end;
+%     raw_data.kx=kx_2D;
+%     raw_data.ky=ky_2D;
+%     raw_data.kz=kz_length;
+% end;
+% raw_data.kz_plane=plane;
+% %write 3D data to UserData
+% %set(handles.pushbutton_cut_kz,'UserData',{kz_cut_data});
+assignin('base', 'bxsf_kzcut_data', cut_kz_plane());
 
 set(handles.pushbutton_cut_kz,'BackgroundColor','green'); 
 
@@ -190,12 +191,7 @@ function listbox_select_bands_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
-   
-% a=5;
-% try 
-%     set(handles.listbox_select_bands,'String',evalin('base','bxsf_data.band_numbers_crossing_Ef'));
-% catch
-% end
+%end
 end
 
 
@@ -516,7 +512,7 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 
 fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
 plotting_style=get(handles.edit_Evsk_plot_style,'String');
-plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'));
+plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'),:);
 
 % load 2D data from kz cut
 bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
@@ -546,12 +542,12 @@ l=1; %initializes running index
 
 %cycle through bands
 
-for band=band_list_plotting
+for band=band_list_plotting'
     %cycle through paths and plot the selected band in all paths
     for ii=2:k_length
         if ~isnan(k_path(ii,1))
-            x=linspace(k_path(ii-1,1),k_path(ii,1),no_interp_points_k_path); %interpolate 100 point path between kx cooridnates
-            y=linspace(k_path(ii-1,2),k_path(ii,2),no_interp_points_k_path); %interpolate 100 point path between ky cooridnates
+            x=linspace(k_path(ii-1,1),k_path(ii,1),no_interp_points_k_path); 
+            y=linspace(k_path(ii-1,2),k_path(ii,2),no_interp_points_k_path); 
             k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
             k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},no_interp_points_k_path);
             s=s+k_path_interp_length{l};
@@ -559,14 +555,16 @@ for band=band_list_plotting
             l=l+1;
         end
     end;
+    s=0;
     number_high_sym_paths=length(interpolated_energy);
-
+    
     figure(fig_plot_cut)
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
     plot(k_path_coordinates{ii},interpolated_energy{ii},'LineStyle',plotting_style)
     end
+    hold off
 end
     
 
@@ -967,6 +965,56 @@ function edit_Evsk_plot_style_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.listbox_select_bands,'String',num2cell(evalin('base','bxsf_data.band_numbers_crossing_Ef')));
+
+
+
+% --- Executes on button press in pushbutton13.
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+h=findall(gca,'Type','line');
+delete(h(:));
+
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+a=5;
+pushbutton_plot_cut_Callback(handles.pushbutton_plot_cut,[],handles);
+
+
+
+function edit18_Callback(hObject, eventdata, handles)
+% hObject    handle to edit18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit18 as text
+%        str2double(get(hObject,'String')) returns contents of edit18 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit18_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
