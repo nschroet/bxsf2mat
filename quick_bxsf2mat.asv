@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 30-Jun-2017 16:36:29
+% Last Modified by GUIDE v2.5 01-Jul-2017 12:14:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -963,13 +963,10 @@ resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
 kz_intercept_list=str2num(get(handles.edit_kz_intercept_list, 'String'));
 
 for kz_intercept=kz_intercept_list
-    kz_plane_data=cut_kz_plane(raw_data,kz_direction,...
-     kz_length,length_kz_cut_plane_side,resolution_cut)
-% assignin('base', 'bxsf_kzcut_data', cut_kz_plane(raw_data,kz_direction,...
-%     kz_length,length_kz_cut_plane_side,resolution_cut));
-
-pushbutton_plot_cut_Callback(handles.pushbutton_plot_cut,[],handles);
-
+    assignin('base', 'bxsf_kzcut_data', cut_kz_plane(raw_data,kz_direction,...
+        kz_intercept,length_kz_cut_plane_side,resolution_cut))
+    pushbutton_plot_cut_Callback(handles.pushbutton_plot_cut,[],handles);
+end;
 
 
 function edit_kz_intercept_list_Callback(hObject, eventdata, handles)
@@ -984,6 +981,90 @@ function edit_kz_intercept_list_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_kz_intercept_list_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_kz_intercept_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%select plotting fig
+figure_plot=str2num(get(handles.edit_plot_figure,'String'));
+
+
+%extract selected bands
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
+%extract contour energies
+contour_energies=sort(str2num(get(handles.edit_plot_energies, 'String')));
+if length(contour_energies)==1
+    contour_energies=[contour_energies contour_energies];
+end;
+
+%load kz cut data from workspace
+kz_cut_data=evalin('base','bxsf_kzcut_data');
+
+
+%plot contours
+
+figure(figure_plot)
+hold on
+color_switch_value=get(handles.popupmenu_contour_color,'Value');
+color_switch_string_list=get(handles.popupmenu_contour_color,'String');
+color=color_switch_string_list(color_switch_value);
+
+show_text_switch=get(handles.radiobutton_contour_text_labels,'Value');
+if show_text_switch
+    show_text_switch='on';
+else
+    show_text_switch='off';
+end
+
+t1 = hgtransform;
+
+for ii=1:length(band_list_plotting)
+    if color_switch_value==1
+        h=contour('Parent',t1,kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        contour_energies,'ShowText',show_text_switch);
+    else
+        h=contour('Parent',t1,kz_cut_data.kx,kz_cut_data.ky,kz_cut_data.E{band_list_plotting(ii)},...
+        contour_energies,'ShowText',show_text_switch,'Color',color{:});
+    end
+    %set(h,'Parent',t1)
+end;
+
+% rotate after plotting
+
+angle=str2num(get(handles.edit_rot_angle,'String'));
+angle=deg2rad(angle);
+Rxy = makehgtform('zrotate',angle);
+set(t1,'Matrix',Rxy)
+axis equal
+
+
+function edit19_Callback(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit19 as text
+%        str2double(get(hObject,'String')) returns contents of edit19 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit19_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

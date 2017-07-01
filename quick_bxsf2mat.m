@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 30-Jun-2017 16:36:29
+% Last Modified by GUIDE v2.5 01-Jul-2017 12:14:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -981,6 +981,56 @@ function edit_kz_intercept_list_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_kz_intercept_list_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_kz_intercept_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% load 4D data
+raw_data=evalin('base','bxsf_data');
+
+%load kz direction vector and other important standards
+kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
+kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_direction(3)*raw_data.v3;
+kz_direction=kz_direction'./norm(kz_direction);
+length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+
+kz_intercept_list=str2num(get(handles.edit_kz_intercept_list, 'String'));
+
+for kz_intercept=kz_intercept_list
+    assignin('base', 'bxsf_kzcut_data', cut_kz_plane(raw_data,kz_direction,...
+        kz_intercept,length_kz_cut_plane_side,resolution_cut))
+    pushbutton_contour_plotting_Callback(handles.pushbutton_contour_plotting,[],handles);
+end;
+
+
+
+
+function edit19_Callback(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit19 as text
+%        str2double(get(hObject,'String')) returns contents of edit19 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit19_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
