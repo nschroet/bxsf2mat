@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 08-Jul-2017 12:35:02
+% Last Modified by GUIDE v2.5 15-Aug-2017 13:41:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -490,6 +490,8 @@ k_length=k_length(1);
 no_interp_points_k_path=str2num(get(handles.edit_no_interp_points_k_path,'String'));
 interp_method=get(handles.popupmenu_k_path_interp_method,'String');
 interp_method=interp_method(get(handles.popupmenu_k_path_interp_method,'Value'));
+energy_offset=str2num(get(handles.edit_energy_offset,'String'));
+
 
  % interpolate cutting path
 [X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
@@ -510,7 +512,7 @@ for band=band_list_plotting'
             k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
             k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},no_interp_points_k_path);
             s=s+k_path_interp_length{l};
-            interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band},x,y, interp_method{:});
+            interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band}+energy_offset,x,y, interp_method{:});
             l=l+1;
         end
     end;
@@ -1052,3 +1054,26 @@ function radiobutton_Ry_to_eV_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton_Ry_to_eV
+
+
+
+function edit_energy_offset_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_energy_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_energy_offset as text
+%        str2double(get(hObject,'String')) returns contents of edit_energy_offset as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_energy_offset_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_energy_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
