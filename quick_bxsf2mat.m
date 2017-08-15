@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 15-Aug-2017 13:41:00
+% Last Modified by GUIDE v2.5 15-Aug-2017 15:09:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -491,7 +491,7 @@ no_interp_points_k_path=str2num(get(handles.edit_no_interp_points_k_path,'String
 interp_method=get(handles.popupmenu_k_path_interp_method,'String');
 interp_method=interp_method(get(handles.popupmenu_k_path_interp_method,'Value'));
 energy_offset=str2num(get(handles.edit_energy_offset,'String'));
-
+k_offset=str2num(get(handles.edit_k_offset,'String'));
 
  % interpolate cutting path
 [X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
@@ -523,7 +523,7 @@ for band=band_list_plotting'
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
-    plot(k_path_coordinates{ii},interpolated_energy{ii},'LineStyle',plotting_style)
+    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style)
     end
     hold off
 end
@@ -1069,6 +1069,29 @@ function edit_energy_offset_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_energy_offset_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_energy_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_k_offset_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_k_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_k_offset as text
+%        str2double(get(hObject,'String')) returns contents of edit_k_offset as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_k_offset_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_k_offset (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
