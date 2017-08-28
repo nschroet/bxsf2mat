@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 08-Jul-2017 12:35:02
+% Last Modified by GUIDE v2.5 28-Aug-2017 10:03:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,13 +79,14 @@ function pushbutton_load_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 interp_points=str2num(get(handles.edit_no_interp_points,'String'));
 length_interp_vect=str2num(get(handles.edit_length_interp_vect,'String'));
+alignment_vector=str2num(get(handles.edit_align_data_loading_hkl,'String'));
 
 % check whether energy scale needs to be converted from Ry to eV
 covert_Ry_to_eV_switch=get(handles.radiobutton_Ry_to_eV,'Value');
     
 
 % load and convert bxsf
-rawdata_converted=bxsf2mat(load_bxsf_v2(covert_Ry_to_eV_switch),interp_points,length_interp_vect);
+rawdata_converted=bxsf2mat(load_bxsf_v2(covert_Ry_to_eV_switch),interp_points,length_interp_vect,alignment_vector);
 
 % write loaded data to workspace for other functions to access
 %set(handles.pushbutton_load,'UserData',{rawdata_converted});
@@ -1052,3 +1053,26 @@ function radiobutton_Ry_to_eV_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton_Ry_to_eV
+
+
+
+function edit_align_data_loading_hkl_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_align_data_loading_hkl (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_align_data_loading_hkl as text
+%        str2double(get(hObject,'String')) returns contents of edit_align_data_loading_hkl as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_align_data_loading_hkl_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_align_data_loading_hkl (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
