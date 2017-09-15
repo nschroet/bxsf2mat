@@ -472,6 +472,14 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
 plotting_style=get(handles.edit_Evsk_plot_style,'String');
 plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'),:);
+color_switch_value=get(handles.popupmenu_contour_color,'Value');
+color_switch_string_list=get(handles.popupmenu_contour_color,'String');
+color=color_switch_string_list(color_switch_value);
+if color_switch_value==1
+    errordlg('pick plotting color')
+else
+    color=color{:};
+end
 
 % load 2D data from kz cut
 bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
@@ -523,7 +531,7 @@ for band=band_list_plotting'
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
-    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style)
+    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style,'Color',color)
     end
     hold off
 end
