@@ -480,6 +480,14 @@ bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
 band_list_plotting_index=get(handles.listbox_select_bands,'Value');
 band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
 band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+color_switch_value=get(handles.popupmenu_contour_color,'Value');
+color_switch_string_list=get(handles.popupmenu_contour_color,'String');
+color=color_switch_string_list(color_switch_value);
+if color_switch_value==1
+    errordlg('pick plotting color')
+else
+    color=color{:};
+end
 
 % load high sym points for cut
 k_path = get(handles.uitable_k_path, 'data');
@@ -523,7 +531,7 @@ for band=band_list_plotting'
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
-    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style)
+    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style,'Color',color)
     end
     hold off
 end
