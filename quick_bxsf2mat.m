@@ -472,14 +472,6 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
 plotting_style=get(handles.edit_Evsk_plot_style,'String');
 plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'),:);
-
-% load 2D data from kz cut
-bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
-
-% select bands for plot
-band_list_plotting_index=get(handles.listbox_select_bands,'Value');
-band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
-band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
 color_switch_value=get(handles.popupmenu_contour_color,'Value');
 color_switch_string_list=get(handles.popupmenu_contour_color,'String');
 color=color_switch_string_list(color_switch_value);
@@ -488,6 +480,15 @@ if color_switch_value==1
 else
     color=color{:};
 end
+
+% load 2D data from kz cut
+bxsf_kzcut_data=evalin('base','bxsf_kzcut_data');
+
+% select bands for plot
+band_list_plotting_index=get(handles.listbox_select_bands,'Value');
+band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
+band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
+
 
 % load high sym points for cut
 k_path = get(handles.uitable_k_path, 'data');
