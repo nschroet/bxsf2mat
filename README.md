@@ -1,6 +1,6 @@
 # bxsf2mat
 This matlab GUI allows you to easily plot band structures that were saved in the XCrysDen .bxsf format.
-The GUI was written with GUIDE and is therefore a bit messy. Future releases should provide a purely programatically code. If you would like to help, you are welcome to join the development team.
+The GUI was written with GUIDE and is therefore a bit messy. Future releases should provide a purely programatic code. If you would like to help, you are welcome to join the development team.
 
 INSTALLATION
 1. Download the repo and add it to your MATLAB path
