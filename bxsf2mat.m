@@ -75,7 +75,7 @@ cartesian_length_vect1=linspace(-2,2,4*bxsf_rawdata.Nx-3); %range goes from -2 t
 cartesian_length_vect2=linspace(-2,2,4*bxsf_rawdata.Ny-3); %note that -3 originates from not counting the boundary between cubes twice
 cartesian_length_vect3=linspace(-2,2,4*bxsf_rawdata.Nz-3);
 
-[X,Y,Z] = meshgrid(cartesian_length_vect1,...
+[X,Y,Z] = ndgrid(cartesian_length_vect1,...
     cartesian_length_vect2,...
     cartesian_length_vect3);
 for ii=1:bxsf_rawdata.N_band
@@ -97,7 +97,7 @@ for ii=1:bxsf_rawdata.N_band
 
     
     % now interpolation happens on enlarged grid
-    data_cartesian=interp3(X,Y,Z, tmp, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
+    data_cartesian=interpn(X,Y,Z, tmp, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
     mat_data.E{ii}=mat_data.E{ii}-mat_data.Ef;
 end;
