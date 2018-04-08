@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 15-Aug-2017 15:09:55
+% Last Modified by GUIDE v2.5 28-Aug-2017 10:03:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,13 +79,14 @@ function pushbutton_load_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 interp_points=str2num(get(handles.edit_no_interp_points,'String'));
 length_interp_vect=str2num(get(handles.edit_length_interp_vect,'String'));
+alignment_vector=str2num(get(handles.edit_align_data_loading_hkl,'String'));
 
 % check whether energy scale needs to be converted from Ry to eV
 covert_Ry_to_eV_switch=get(handles.radiobutton_Ry_to_eV,'Value');
     
 
 % load and convert bxsf
-rawdata_converted=bxsf2mat(load_bxsf_v2(covert_Ry_to_eV_switch),interp_points,length_interp_vect);
+rawdata_converted=bxsf2mat(load_bxsf_v2(covert_Ry_to_eV_switch),interp_points,length_interp_vect,alignment_vector);
 
 % write loaded data to workspace for other functions to access
 %set(handles.pushbutton_load,'UserData',{rawdata_converted});
@@ -476,6 +477,7 @@ function pushbutton_plot_cut_Callback(hObject, eventdata, handles)
 fig_plot_cut=str2num(get(handles.edit_fig_plot_cuts,'String'));
 plotting_style=get(handles.edit_Evsk_plot_style,'String');
 plotting_style=plotting_style(get(handles.edit_Evsk_plot_style,'Value'),:);
+
 color_switch_value=get(handles.popupmenu_contour_color,'Value');
 color_switch_string_list=get(handles.popupmenu_contour_color,'String');
 color=color_switch_string_list(color_switch_value);
@@ -493,7 +495,6 @@ band_list_plotting_index=get(handles.listbox_select_bands,'Value');
 band_list_plotting=cellfun(@str2num,get(handles.listbox_select_bands,'String'),'un',0);
 band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
 
-
 % load high sym points for cut
 k_path = get(handles.uitable_k_path, 'data');
 k_length=size(k_path);
@@ -503,8 +504,6 @@ k_length=k_length(1);
 no_interp_points_k_path=str2num(get(handles.edit_no_interp_points_k_path,'String'));
 interp_method=get(handles.popupmenu_k_path_interp_method,'String');
 interp_method=interp_method(get(handles.popupmenu_k_path_interp_method,'Value'));
-energy_offset=str2num(get(handles.edit_energy_offset,'String'));
-k_offset=str2num(get(handles.edit_k_offset,'String'));
 
  % interpolate cutting path
 [X,Y]=meshgrid(bxsf_kzcut_data.kx,bxsf_kzcut_data.ky);
@@ -525,7 +524,7 @@ for band=band_list_plotting'
             k_path_interp_length{l}=norm([k_path(ii-1,1)-k_path(ii,1);k_path(ii-1,2)-k_path(ii,2)]); % measure length between points
             k_path_coordinates{l}=linspace(s,s+k_path_interp_length{l},no_interp_points_k_path);
             s=s+k_path_interp_length{l};
-            interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band}+energy_offset,x,y, interp_method{:});
+            interpolated_energy{l}=interp2(X,Y,bxsf_kzcut_data.E{band},x,y, interp_method{:});
             l=l+1;
         end
     end;
@@ -536,7 +535,7 @@ for band=band_list_plotting'
     hold on
     for ii=1:number_high_sym_paths
     %     subplot(1,no_high_sym_paths,ii)
-    plot(k_path_coordinates{ii}+k_offset,interpolated_energy{ii},'LineStyle',plotting_style,'Color',color)
+    plot(k_path_coordinates{ii},interpolated_energy{ii},'LineStyle',plotting_style, 'Color',color)
     end
     hold off
 end
@@ -1070,41 +1069,18 @@ function radiobutton_Ry_to_eV_Callback(hObject, eventdata, handles)
 
 
 
-function edit_energy_offset_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_energy_offset (see GCBO)
+function edit_align_data_loading_hkl_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_align_data_loading_hkl (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_energy_offset as text
-%        str2double(get(hObject,'String')) returns contents of edit_energy_offset as a double
+% Hints: get(hObject,'String') returns contents of edit_align_data_loading_hkl as text
+%        str2double(get(hObject,'String')) returns contents of edit_align_data_loading_hkl as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit_energy_offset_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_energy_offset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_k_offset_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_k_offset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_k_offset as text
-%        str2double(get(hObject,'String')) returns contents of edit_k_offset as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_k_offset_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_k_offset (see GCBO)
+function edit_align_data_loading_hkl_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_align_data_loading_hkl (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

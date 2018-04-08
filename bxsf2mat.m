@@ -1,4 +1,4 @@
-function [mat_data]=bxsf2mat(bxsf_rawdata,no_interpolation_points,interpolation_length)
+function [mat_data]=bxsf2mat(bxsf_rawdata,no_interpolation_points,interpolation_length,alignment_vector)
 %bxsf2mat interpolates bxsf data (which is generally in a non-orthoginal)
 %into orthogonal cartesian coordinates in inverse Angstroms
 %   bxsf_rawdata is in the format specified by Teng's loader, as given by
@@ -22,8 +22,9 @@ b_1=bxsf_rawdata.v1';
 b_2=bxsf_rawdata.v2';
 b_3=bxsf_rawdata.v3';
 
-
-[azimuth,elevation,~] = cart2sph(b_3(1),b_3(2),b_3(3));
+% build a transformation matrix to align the data along a preferred axis
+alignment_vector=alignment_vector(1)*b_1+alignment_vector(2)*b_2+alignment_vector(3)*b_3;
+[azimuth,elevation,~] = cart2sph(alignment_vector(1),alignment_vector(2),alignment_vector(3));
 First_trafo_matrix=roty(rad2deg(elevation)-90)*rotz(-rad2deg(azimuth));
 
 %transform vectors and copy them to the file
@@ -74,7 +75,7 @@ cartesian_length_vect1=linspace(-2,2,4*bxsf_rawdata.Nx-3); %range goes from -2 t
 cartesian_length_vect2=linspace(-2,2,4*bxsf_rawdata.Ny-3); %note that -3 originates from not counting the boundary between cubes twice
 cartesian_length_vect3=linspace(-2,2,4*bxsf_rawdata.Nz-3);
 
-[X,Y,Z] = meshgrid(cartesian_length_vect1,...
+[X,Y,Z] = ndgrid(cartesian_length_vect1,...
     cartesian_length_vect2,...
     cartesian_length_vect3);
 for ii=1:bxsf_rawdata.N_band
@@ -96,7 +97,7 @@ for ii=1:bxsf_rawdata.N_band
 
     
     % now interpolation happens on enlarged grid
-    data_cartesian=interp3(X,Y,Z, tmp, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
+    data_cartesian=interpn(X,Y,Z, tmp, points_transformed(:,1), points_transformed(:,2), points_transformed(:,3));
     mat_data.E{ii}=reshape(data_cartesian,[no_interpolation_points,no_interpolation_points,no_interpolation_points]);
     mat_data.E{ii}=mat_data.E{ii}-mat_data.Ef;
 end;
