@@ -239,6 +239,10 @@ angle=deg2rad(angle);
 Rxy = makehgtform('zrotate',angle);
 set(t1,'Matrix',Rxy)
 axis equal
+xlabel('k_{x} (A^{-1})','interpreter','tex')
+ylabel('k_{y} (A^{-1})','interpreter','tex')
+set(gca,'TickDir','out')
+
 
 
 
