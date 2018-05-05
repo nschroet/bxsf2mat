@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 28-Aug-2017 10:03:18
+% Last Modified by GUIDE v2.5 05-May-2018 16:11:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -232,12 +232,15 @@ for ii=1:length(band_list_plotting)
         contour_energies,'ShowText',show_text_switch,'Color',color{:});
     end
     %set(h,'Parent',t1)
-end;
+end
 
 angle=str2num(get(handles.edit_rot_angle,'String'));
 angle=deg2rad(angle);
+translation_vector=str2num(get(handles.edit_contour_translation,'String'));
 Rxy = makehgtform('zrotate',angle);
-set(t1,'Matrix',Rxy)
+Tx= makehgtform('translate',translation_vector);
+set(t1,'Matrix',Tx*Rxy)
+% set(t1,'Matrix',Tx)
 axis equal
 xlabel('k_{x} (A^{-1})','interpreter','tex')
 ylabel('k_{y} (A^{-1})','interpreter','tex')
@@ -367,7 +370,7 @@ band_list_plotting=cell2mat(band_list_plotting(band_list_plotting_index));
     isosurface_data.kz);
 figure(figure_plot)
 hold on
-color_list=['y','m','cyan', 'red', 'green', 'blue'];
+color_list=['y','m','c', 'r', 'g', 'b','y','m','c', 'r', 'g', 'b','y','m','c', 'r', 'g', 'b'];
 for ii=1:length(band_list_plotting)
     fv = isosurface(X,Y,Z,isosurface_data.E{band_list_plotting(ii)},isosurface_energy);
     patch('Faces',fv.faces,'Vertices',fv.vertices,'FaceColor',color_list(ii), 'EdgeAlpha',0.2)
@@ -1081,6 +1084,29 @@ function edit_align_data_loading_hkl_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit_align_data_loading_hkl_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_align_data_loading_hkl (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_contour_translation_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_contour_translation (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_contour_translation as text
+%        str2double(get(hObject,'String')) returns contents of edit_contour_translation as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_contour_translation_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_contour_translation (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
