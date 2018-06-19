@@ -22,7 +22,7 @@ function varargout = intersect_sphere_FS(varargin)
 
 % Edit the above text to modify the response to help intersect_sphere_FS
 
-% Last Modified by GUIDE v2.5 16-Jun-2018 16:54:22
+% Last Modified by GUIDE v2.5 19-Jun-2018 08:58:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -103,9 +103,15 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 raw_data=evalin('base','bxsf_data');
 translation_direction=str2num(get(handles.edit_translation_vector, 'String'));
-raw_data.kx=raw_data.kx+translation_direction(1).*norm(raw_data.v1);
-raw_data.ky=raw_data.ky+translation_direction(2).*norm(raw_data.v2);
-raw_data.kz=raw_data.kz+translation_direction(3).*norm(raw_data.v3);
+if get(handles.popupmenu_translation_units,'Value')==1
+    raw_data.kx=raw_data.kx+translation_direction(1).*norm(raw_data.v1);
+    raw_data.ky=raw_data.ky+translation_direction(2).*norm(raw_data.v2);
+    raw_data.kz=raw_data.kz+translation_direction(3).*norm(raw_data.v3);
+else
+    raw_data.kx=raw_data.kx+translation_direction(1);
+    raw_data.ky=raw_data.ky+translation_direction(2);
+    raw_data.kz=raw_data.kz+translation_direction(3);
+end
 assignin('base', 'bxsf_data', raw_data);
 
 
@@ -155,10 +161,62 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 EplusV0=str2num(get(handles.edit_Ekin_V0, 'String'));
 translation_direction=str2num(get(handles.edit_translation_vector, 'String'));
 raw_data=evalin('base','bxsf_data');
-o1=translation_direction(1).*norm(raw_data.v1);
-o2=translation_direction(2).*norm(raw_data.v2);
-o3=translation_direction(3).*norm(raw_data.v3);
+if get(handles.popupmenu_translation_units,'Value')==1
+    o1=translation_direction(1).*norm(raw_data.v1);
+    o2=translation_direction(2).*norm(raw_data.v2);
+    o3=translation_direction(3).*norm(raw_data.v3);
+else
+    o1=translation_direction(1);
+    o2=translation_direction(2);
+    o3=translation_direction(3);
+end
 
 A=2*9.10938291e-31*1.6e-19/1.054571726e-34^2*10^-20;
 kz_plane_intercept=sqrt(A*EplusV0);
 drawSphere([o1 o2 o3 kz_plane_intercept],'nPhi', 360, 'nTheta', 180,'linestyle', ':', 'facecolor', 'r','FaceAlpha',0.6)
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu_translation_units.
+function popupmenu_translation_units_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_units (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_translation_units contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_translation_units
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_translation_units_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_translation_units (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
