@@ -22,7 +22,7 @@ function varargout = intersect_sphere_FS(varargin)
 
 % Edit the above text to modify the response to help intersect_sphere_FS
 
-% Last Modified by GUIDE v2.5 19-Jun-2018 08:58:41
+% Last Modified by GUIDE v2.5 24-Jun-2018 14:51:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -147,7 +147,7 @@ EplusV0=str2num(get(handles.edit_Ekin_V0, 'String'));
 
 raw_data=evalin('base','bxsf_data');
 length_kz_cut_plane_side=1;
-resolution_cut=200;
+resolution_cut=str2num(get(handles.edit_resolution,'String'));
 kz_direction=[0 0 1];
 assignin('base', 'bxsf_kzcut_data', cut_kz_plane_sphere( raw_data,...
     kz_direction, EplusV0,length_kz_cut_plane_side,resolution_cut ));
@@ -216,6 +216,29 @@ function popupmenu_translation_units_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_resolution_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_resolution (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_resolution as text
+%        str2double(get(hObject,'String')) returns contents of edit_resolution as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_resolution_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_resolution (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
