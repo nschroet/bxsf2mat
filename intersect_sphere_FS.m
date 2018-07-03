@@ -22,7 +22,7 @@ function varargout = intersect_sphere_FS(varargin)
 
 % Edit the above text to modify the response to help intersect_sphere_FS
 
-% Last Modified by GUIDE v2.5 24-Jun-2018 14:51:17
+% Last Modified by GUIDE v2.5 02-Jul-2018 14:03:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -243,3 +243,10 @@ function edit_resolution_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function pushbutton2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called

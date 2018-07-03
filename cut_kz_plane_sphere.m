@@ -64,8 +64,8 @@ end
         data_2D_plane=interp3(KX,KY,KZ, raw4D_data.E{ii},temp(:,1),temp(:,2),temp(:,3));  
         raw4D_data.E{ii}=reshape(data_2D_plane,length(kx_vector), length(ky_vector));
     end
-%     raw4D_data.kx=kx_2D;
-%     raw4D_data.ky=ky_2D;
+    raw4D_data.kx=kx_vector;
+    raw4D_data.ky=ky_vector;
     raw4D_data.kz=kz_plane_intercept;
 
 kz_plane_data.kx=raw4D_data.kx;
