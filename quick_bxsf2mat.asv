@@ -124,9 +124,7 @@ kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_directio
 kz_direction=kz_direction'./norm(kz_direction);
 kz_length=str2num(get(handles.edit_kz_value, 'String'));
 
-kz_plane_rotation=str2num(get(handles.edit_kz_plane_rotation, 'String'));
-kz_direction=rotz(kz_plane_rotation)*kz_direction';
-kz_direction=kz_direction';
+edit_kz_plane_rotation
 
 length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
 resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
