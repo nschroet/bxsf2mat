@@ -8,7 +8,7 @@ end
 
 % take the header from the first file and copy it to the new file
 % build new file
-new_file_name='CaAgP_combined2.bxsf';
+new_file_name='combined.bxsf';
 new_file_fullpath=fullfile(pathname,new_file_name);
 fid_new=fopen(new_file_fullpath,'w');
 % open first old file
