@@ -22,7 +22,7 @@ function varargout = quick_bxsf2mat(varargin)
 
 % Edit the above text to modify the response to help quick_bxsf2mat
 
-% Last Modified by GUIDE v2.5 13-Nov-2019 16:11:15
+% Last Modified by GUIDE v2.5 28-Mar-2025 14:33:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1142,3 +1142,32 @@ function edit_kz_plane_rotation_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton16.
+function pushbutton16_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% load 4D data
+raw_data=evalin('base','bxsf_data');
+
+%load kz direction vector and other important standards
+kz_direction=str2num(get(handles.edit_kz_direction, 'String'));
+kz_direction=kz_direction(1)*raw_data.v1+kz_direction(2)*raw_data.v2+kz_direction(3)*raw_data.v3;
+kz_direction=kz_direction'./norm(kz_direction);
+length_kz_cut_plane_side=str2num(get(handles.edit_length_kz_cut_plane_side, 'String'));
+resolution_cut=str2num(get(handles.edit_points_kz_cut_plane, 'String'));
+
+kz_intercept_list=str2num(get(handles.edit_kz_intercept_list, 'String'));
+subplot_sqrt=round(sqrt(length(kz_intercept_list)));
+indexer=1;
+for kz_intercept=kz_intercept_list
+    subplot(subplot_sqrt,subplot_sqrt+1,indexer);
+    title(kz_intercept)
+    indexer=indexer+1;
+    assignin('base', 'bxsf_kzcut_data', cut_kz_plane(raw_data,kz_direction,...
+        kz_intercept,length_kz_cut_plane_side,resolution_cut))
+    pushbutton_contour_plotting_Callback(handles.pushbutton_contour_plotting,[],handles);
+end;
